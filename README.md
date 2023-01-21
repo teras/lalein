@@ -8,9 +8,10 @@ approach.
 
 An example of a translation file can be found using [JSON](#json-example), or [YAML](#yaml-example),
 or [Properties](#properties-example) format. To use in your own programs you need
-to [import the library](#how-to-add-this-library) and [use it in your code](#usage-example).
+to [import the library](#how-to-add-this-library-to-your-own-projects) and [use it in your code](#usage-in-java).
 
 ### TOC
+
 * [TL;DR](#tldr)
 * [TOC](#toc)
 * [The problem](#the-problem)
