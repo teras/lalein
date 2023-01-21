@@ -1,0 +1,26 @@
+{
+  "peaches" : "I have peaches.",
+  "apples" : {
+    "z": "I don't have apples.",
+    "o": "I have an apple.",
+    "t": "I have two apples.",
+    "r": "I have %d apples."
+  },
+  "baskets with oranges": {
+    "baskets": {
+      "z": "I don't have a basket %{oranges_zero_basket}.",
+      "o": "I have a basket %{oranges}.",
+      "r": "I have %1$d baskets %{oranges}."
+    },
+    "oranges": {
+      "z": "without oranges",
+      "o": "with one orange",
+      "r": "with %2$d oranges"
+    },
+    "^oranges_zero_basket": {
+      "z": "or an orange",
+      "o": "but I have an orange",
+      "r": "but I have %2$d oranges"
+    }
+  }
+}
