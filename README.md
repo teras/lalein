@@ -206,17 +206,17 @@ Here is an example, how to use this lirbary in your own code:
 
 ```java
 // Java
-Lalein lalein = JsonLaleinProvider.fromStream(JsonLaleinProvider.class.getResourceAsStream("/Localizable.en.json"));
+Lalein lalein = JsonLaleinLoader.fromResource("/Localizable.en.json");
 ```
 
 ```java
 // YAML
-Lalein lalein = YamlLaleinProvider.fromStream(YamlLaleinProvider.class.getResourceAsStream("/Localizable.en.yaml");
+Lalein lalein = YamlLaleinLoader.fromResource("/Localizable.en.yaml");
 ```
 
 ```java
 // Properties
-Lalein lalein = PropertiesLaleinProvider.fromStream(YamlLaleinProvider.class.getResourceAsStream("/Localizable.en.properties");
+Lalein lalein = PropertiesLaleinLoader.fromResource("/Localizable.en.properties");
 ```
 
 and then, to format a string based on the translation unit handler:

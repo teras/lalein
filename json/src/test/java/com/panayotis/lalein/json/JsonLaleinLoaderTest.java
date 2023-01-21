@@ -1,19 +1,17 @@
 package com.panayotis.lalein.json;
 
 import com.panayotis.lalein.Lalein;
-import com.panayotis.lalein.yaml.YamlLaleinProvider;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class YamlLaleinProviderTest {
+public class JsonLaleinLoaderTest {
 
     @Test
     void fromString() throws IOException {
-        Lalein lalein = YamlLaleinProvider.fromStream(YamlLaleinProvider.class.getResourceAsStream("/Localizable.yaml"));
-
+        Lalein lalein = JsonLaleinLoader.fromResource("/Localizable.json");
         assertEquals("I have peaches.", lalein.format("peaches"));
 
         assertEquals("I don't have apples.", lalein.format("apples", 0));

@@ -6,7 +6,11 @@ import java.io.*;
 import java.util.Iterator;
 import java.util.Properties;
 
-public class PropertiesLaleinProvider {
+public class PropertiesLaleinLoader {
+    public static Lalein fromResource(String resource) throws IOException {
+        return fromStream(PropertiesLaleinLoader.class.getResourceAsStream(resource));
+    }
+
     public static Lalein fromString(String data) throws IOException {
         return fromReader(new StringReader(data));
     }

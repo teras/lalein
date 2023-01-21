@@ -1,18 +1,18 @@
 package com.panayotis.lalein.json;
 
 import com.panayotis.lalein.Lalein;
-import com.panayotis.lalein.yaml.PropertiesLaleinProvider;
+import com.panayotis.lalein.yaml.PropertiesLaleinLoader;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class PropertiesLaleinProviderTest {
+public class PropertiesLaleinLoaderTest {
 
     @Test
     void fromString() throws IOException {
-        Lalein lalein = PropertiesLaleinProvider.fromStream(PropertiesLaleinProvider.class.getResourceAsStream("/Localizable.properties"));
+        Lalein lalein = PropertiesLaleinLoader.fromResource("/Localizable.properties");
 
         assertEquals("I have peaches.", lalein.format("peaches"));
 

@@ -12,7 +12,11 @@ import java.nio.file.Files;
 import java.util.Iterator;
 
 @SuppressWarnings("unused")
-public class JsonLaleinProvider {
+public class JsonLaleinLoader {
+    public static Lalein fromResource(String resource) throws IOException {
+        return fromStream(JsonLaleinLoader.class.getResourceAsStream(resource));
+    }
+
     public static Lalein fromString(String data) {
         return fromJson(asObject(Json.parse(data)));
     }

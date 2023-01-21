@@ -14,7 +14,11 @@ import java.util.Iterator;
 import java.util.Scanner;
 
 @SuppressWarnings("unused")
-public class YamlLaleinProvider {
+public class YamlLaleinLoader {
+    public static Lalein fromResource(String resource) throws IOException {
+        return fromStream(YamlLaleinLoader.class.getResourceAsStream(resource));
+    }
+
     public static Lalein fromString(String data) throws IOException {
         return fromInput(Yaml.createYamlInput(data));
     }
