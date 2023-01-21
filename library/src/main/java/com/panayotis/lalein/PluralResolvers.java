@@ -49,7 +49,7 @@ public class PluralResolvers {
             if (key.contains(language)) {
                 PluralResolver resolver = specialResolvers.get(key);
                 if (resolver == null)
-                    throw new IllegalArgumentException("Language " + fullNameLanguage + " not supported yet. Please provide a manual PluralResolver");
+                    throw new LaleinException("Language " + fullNameLanguage + " not supported yet. Please provide a manual PluralResolver");
                 else return resolver;
             }
         return n -> null;

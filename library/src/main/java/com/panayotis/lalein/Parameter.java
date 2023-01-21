@@ -25,13 +25,13 @@ public class Parameter {
 
     String resolve(PluralResolver pluralResolver, Object[] args) {
         if (args == null || args.length == 0)
-            throw new IllegalArgumentException("A parameter is required but no parameters are given");
+            throw new LaleinException("A parameter is required but no parameters are given");
         if (args.length < argumentIndex)
-            throw new IllegalArgumentException("A parameter with index #" + argumentIndex + " is required but only "
+            throw new LaleinException("A parameter with index #" + argumentIndex + " is required but only "
                     + args.length + " parameter" + (args.length == 1 ? " is" : "s are") + " given");
         Object argO = args[argumentIndex - 1];
         if (!(argO instanceof Number))
-            throw new IllegalArgumentException("An numeric argument was required but given " + (argO == null ? "null" : argO.getClass().getName()) + " instead");
+            throw new LaleinException("An numeric argument was required but given " + (argO == null ? "null" : argO.getClass().getName()) + " instead");
         Number arg = (Number) argO;
         double argDouble = arg.doubleValue();
         // handle natural cases

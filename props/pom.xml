@@ -9,18 +9,9 @@
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>lalein-json</artifactId>
-
-    <properties>
-        <minimal-json.version>0.9.5</minimal-json.version>
-    </properties>
+    <artifactId>lalein-properties</artifactId>
 
     <dependencies>
-        <dependency>
-            <groupId>com.eclipsesource.minimal-json</groupId>
-            <artifactId>minimal-json</artifactId>
-            <version>${minimal-json.version}</version>
-        </dependency>
         <dependency>
             <groupId>com.panayotis</groupId>
             <artifactId>lalein</artifactId>

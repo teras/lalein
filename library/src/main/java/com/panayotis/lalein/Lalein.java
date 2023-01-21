@@ -56,7 +56,7 @@ public class Lalein {
         while (matcher.find()) {
             Parameter parameter = parameters.get(matcher.group(1));
             if (parameter == null)
-                throw new IllegalArgumentException("Unable to locate localization parameter " + matcher.group(1));
+                throw new LaleinException("Unable to locate localization parameter " + matcher.group(1));
             format = format.substring(0, matcher.start())
                     + parameter.resolve(pluralResolver, args)
                     + format.substring(matcher.end());

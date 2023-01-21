@@ -4,7 +4,7 @@ apples:
   o: I have an apple.
   t: I have two apples.
   r: I have %d apples.
-baskets with oranges:
+baskets_with_oranges:
   baskets:
     z: I don't have a basket %{oranges_zero_basket}.
     o: I have a basket %{oranges}.
