@@ -234,8 +234,8 @@ For every localization a new localization file is of course required.
 
 ### How to add this library to your own projects
 
-To use this library on your own applications, you need to add
+To use this library on your own applications, you need to add either:
 
-* the core library, `com.panayotis:lalein` and either
-* the JSON backend, `com.panayotis:lalein-json` or
-* the YAML backend, `com.panayotis:lalein-json`
+* JSON backend: `com.panayotis.lalein:json:1.1.0`
+* YAML backend: `com.panayotis.lalein:yaml:1.1.0`
+* Properties backend: `com.panayotis.lalein:properties:1.1.0`

@@ -30,6 +30,8 @@ class PropertiesLaleinProviderTest {
         assertEquals("I have 7 baskets without oranges.", lalein.format("baskets_with_oranges", 7, 0));
         assertEquals("I have 7 baskets with one orange.", lalein.format("baskets_with_oranges", 7, 1));
         assertEquals("I have 7 baskets with 9 oranges.", lalein.format("baskets_with_oranges", 7, 9));
+
+        assertEquals("This does not exist", lalein.format("This does not exist"));
     }
 
 }
