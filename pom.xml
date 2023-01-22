@@ -12,6 +12,7 @@
 
     <modules>
         <module>core</module>
+        <module>editor</module>
         <module>json</module>
         <module>yaml</module>
         <module>props</module>

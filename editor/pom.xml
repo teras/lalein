@@ -12,7 +12,6 @@
     <artifactId>editor</artifactId>
     <packaging>jar</packaging>
 
-    <name>Lalein editor</name>
 
     <properties>
         <kotlin.code.style>official</kotlin.code.style>
@@ -112,6 +111,23 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.10.4</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6.8</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -155,9 +171,9 @@
             <version>${minimal-json.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.panayotis</groupId>
-            <artifactId>lalein</artifactId>
-            <version>1.0</version>
+            <groupId>com.panayotis.lalein</groupId>
+            <artifactId>core</artifactId>
+            <version>1.1.0</version>
         </dependency>
     </dependencies>
 
