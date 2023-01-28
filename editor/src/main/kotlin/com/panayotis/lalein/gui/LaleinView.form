@@ -150,7 +150,9 @@
                     <preferred-size width="150" height="-1"/>
                   </grid>
                 </constraints>
-                <properties/>
+                <properties>
+                  <editable value="false"/>
+                </properties>
               </component>
               <component id="6fef0" class="javax.swing.JTextField" binding="oneF">
                 <constraints>
@@ -158,7 +160,9 @@
                     <preferred-size width="150" height="-1"/>
                   </grid>
                 </constraints>
-                <properties/>
+                <properties>
+                  <editable value="false"/>
+                </properties>
               </component>
               <component id="d2613" class="javax.swing.JTextField" binding="twoF">
                 <constraints>
@@ -166,7 +170,9 @@
                     <preferred-size width="150" height="-1"/>
                   </grid>
                 </constraints>
-                <properties/>
+                <properties>
+                  <editable value="false"/>
+                </properties>
               </component>
               <component id="17623" class="javax.swing.JTextField" binding="fewF">
                 <constraints>
@@ -174,7 +180,9 @@
                     <preferred-size width="150" height="-1"/>
                   </grid>
                 </constraints>
-                <properties/>
+                <properties>
+                  <editable value="false"/>
+                </properties>
               </component>
               <component id="3ca9" class="javax.swing.JTextField" binding="manyF">
                 <constraints>
@@ -182,7 +190,9 @@
                     <preferred-size width="150" height="-1"/>
                   </grid>
                 </constraints>
-                <properties/>
+                <properties>
+                  <editable value="false"/>
+                </properties>
               </component>
               <component id="874a4" class="javax.swing.JCheckBox" binding="otherC">
                 <constraints>
@@ -199,7 +209,9 @@
                     <preferred-size width="150" height="-1"/>
                   </grid>
                 </constraints>
-                <properties/>
+                <properties>
+                  <editable value="false"/>
+                </properties>
               </component>
               <vspacer id="6417b">
                 <constraints>
@@ -277,7 +289,9 @@
                         <preferred-size width="150" height="-1"/>
                       </grid>
                     </constraints>
-                    <properties/>
+                    <properties>
+                      <editable value="false"/>
+                    </properties>
                   </component>
                 </children>
               </grid>

@@ -10,5 +10,6 @@
     </parent>
 
     <artifactId>core</artifactId>
+    <description>Translations in Java: The proper way. Core library</description>
 
 </project>

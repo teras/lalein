@@ -1,7 +1,6 @@
 package com.panayotis.lalein;
 
-public class Parameter {
-    final String name;
+class Parameter {
     final int argumentIndex;    // 1-based index
     final String zero;
     final String one;
@@ -10,10 +9,9 @@ public class Parameter {
     final String many;
     final String other;
 
-    public Parameter(String name, int argumentIndex, String zero, String one, String two, String few, String many, String other) {
+     Parameter(int argumentIndex, String zero, String one, String two, String few, String many, String other) {
         if (argumentIndex <= 0)
             throw new IndexOutOfBoundsException("An argument index can not be referenced with zero or negative position");
-        this.name = name;
         this.argumentIndex = argumentIndex;
         this.zero = zero;
         this.one = one;

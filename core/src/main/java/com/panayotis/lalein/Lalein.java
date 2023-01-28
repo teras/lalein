@@ -1,7 +1,5 @@
 package com.panayotis.lalein;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -11,23 +9,13 @@ import java.util.regex.Pattern;
 public class Lalein {
     private static final Pattern tag = Pattern.compile("%\\{(\\w+)}");
 
-    private final HashMap<String, Translation> registry = new HashMap<>();
+    private final Map<String, Translation> registry;
 
     private Function<String, String> postProcessor = null;
     private PluralResolver pluralResolver = PluralResolvers.usingCurrentLocale();
 
-    public Lalein(Iterable<? extends TranslationUnit> translations) {
-        if (translations != null)
-            for (TranslationUnit tProvider : translations) {
-                Map<String, Parameter> paramMap = null;
-                Iterable<Parameter> paramIterable = tProvider.getParameters();
-                if (paramIterable != null) {
-                    paramMap = new LinkedHashMap<>();
-                    for (Parameter param : paramIterable)
-                        paramMap.put(param.name, param);
-                }
-                registry.put(tProvider.getHandler(), new Translation(tProvider.getFormat(), paramMap));
-            }
+    Lalein(Map<String, Translation> data) {
+        this.registry = data;
     }
 
     public void setPostProcessor(Function<String, String> postProcessor) {

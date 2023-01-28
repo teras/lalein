@@ -1,5 +1,6 @@
 package com.panayotis.lalein.gui
 
+import com.panayotis.lalein.LaleinInfo
 import javax.swing.JTree
 import javax.swing.tree.DefaultMutableTreeNode
 import javax.swing.tree.DefaultTreeModel
@@ -10,7 +11,7 @@ class TransTreeUI : JTree() {
         model = DefaultTreeModel(DefaultMutableTreeNode())
     }
 
-    var translationModel: TranslationSet? = null
+    var translationModel: LaleinInfo? = null
         set(value) {
             field = value
             if (value == null) {
@@ -22,8 +23,8 @@ class TransTreeUI : JTree() {
                 val transl = DefaultMutableTreeNode(tEntry)
                 top += transl
                 // Add a sub-entry only if we have more than one translation parameter
-                if (tEntry.variables.size > 1)
-                    tEntry.variables.forEach { tVar ->
+                if (tEntry.parameterCount > 1)
+                    tEntry.parameters.forEach { tVar ->
                         val variable = DefaultMutableTreeNode(tVar)
                         transl += variable
                     }

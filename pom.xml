@@ -7,15 +7,17 @@
     <version>1.1.0</version>
     <packaging>pom</packaging>
     <name>Lalein base project</name>
-    <description>Translations in Java: The proper way</description>
+    <description>Translations in Java: The proper way. This is the base project</description>
     <url>https://github.com/teras/lalein</url>
 
     <modules>
         <module>core</module>
+        <module>info</module>
         <module>editor</module>
         <module>json</module>
         <module>yaml</module>
-        <module>props</module>
+        <module>properties</module>
+        <module>map</module>
     </modules>
 
     <properties>

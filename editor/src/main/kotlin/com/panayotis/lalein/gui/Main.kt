@@ -1,6 +1,6 @@
 package com.panayotis.lalein.gui
 
 fun main() {
-    UISetUp()
+    setupUI()
     LaleinFrame().isVisible = true
 }

@@ -207,17 +207,17 @@ Here is an example, how to use this lirbary in your own code:
 
 ```java
 // Java
-Lalein lalein = JsonLaleinLoader.fromResource("/Localizable.en.json");
+Lalein lalein = JsonLalein.fromResource("/Localizable.en.json");
 ```
 
 ```java
 // YAML
-Lalein lalein = YamlLaleinLoader.fromResource("/Localizable.en.yaml");
+Lalein lalein = YamlLalein.fromResource("/Localizable.en.yaml");
 ```
 
 ```java
 // Properties
-Lalein lalein = PropertiesLaleinLoader.fromResource("/Localizable.en.properties");
+Lalein lalein = PropertiesLalein.fromResource("/Localizable.en.properties");
 ```
 
 and then, to format a string based on the translation unit handler:
@@ -235,8 +235,30 @@ For every localization a new localization file is of course required.
 
 ### How to add this library to your own projects
 
-To use this library on your own applications, you need to add either:
-
-* JSON backend: `com.panayotis.lalein:json:1.1.0`
-* YAML backend: `com.panayotis.lalein:yaml:1.1.0`
-* Properties backend: `com.panayotis.lalein:properties:1.1.0`
+To use this library on your own applications, wiht maven, you need to add either:
+```xml
+<!-- JSON -->
+<dependency>
+    <groupId>com.panayotis.lalein</groupId>
+    <artifactId>json</artifactId>
+    <version>1.1.0</version>
+</dependency>
+```
+or
+```xml
+<!-- YAML -->
+<dependency>
+    <groupId>com.panayotis.lalein</groupId>
+    <artifactId>yaml</artifactId>
+    <version>1.1.0</version>
+</dependency>
+```
+or
+```xml
+<!-- Properties -->
+<dependency>
+    <groupId>com.panayotis.lalein</groupId>
+    <artifactId>properties</artifactId>
+    <version>1.1.0</version>
+</dependency>
+```
