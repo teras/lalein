@@ -1,5 +1,7 @@
 package com.panayotis.lalein;
 
+import java.util.Objects;
+
 class Parameter {
     final int argumentIndex;    // 1-based index
     final String zero;
@@ -9,7 +11,7 @@ class Parameter {
     final String many;
     final String other;
 
-     Parameter(int argumentIndex, String zero, String one, String two, String few, String many, String other) {
+    Parameter(int argumentIndex, String zero, String one, String two, String few, String many, String other) {
         if (argumentIndex <= 0)
             throw new IndexOutOfBoundsException("An argument index can not be referenced with zero or negative position");
         this.argumentIndex = argumentIndex;
@@ -54,5 +56,24 @@ class Parameter {
         if (many != null && pluralType == PluralType.MANY)
             return many;
         return other;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Parameter)) return false;
+        Parameter parameter = (Parameter) o;
+        return argumentIndex == parameter.argumentIndex
+                && Objects.equals(zero, parameter.zero)
+                && Objects.equals(one, parameter.one)
+                && Objects.equals(two, parameter.two)
+                && Objects.equals(few, parameter.few)
+                && Objects.equals(many, parameter.many)
+                && Objects.equals(other, parameter.other);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(argumentIndex, zero, one, two, few, many, other);
     }
 }

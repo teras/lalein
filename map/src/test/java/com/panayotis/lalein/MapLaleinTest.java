@@ -13,8 +13,9 @@ public class MapLaleinTest {
     @Test
     void fromString() throws IOException {
         @SuppressWarnings("unchecked")
-        Map<String, ?> data = new ObjectMapper().readValue(MapLaleinTest.class.getResourceAsStream("/Localizable.json"), Map.class);
-        Lalein lalein = MapLalein.fromMap(data);
+        Map<String, ?> map = new ObjectMapper().readValue(MapLaleinTest.class.getResourceAsStream("/Localizable.json"), Map.class);
+        Lalein lalein = MapLalein.fromMap(map);
+        Map<String, ?> reverse = MapLalein.toMap(lalein);
 
         assertEquals("I have peaches.", lalein.format("peaches"));
 
@@ -34,6 +35,9 @@ public class MapLaleinTest {
         assertEquals("I have 7 baskets with 9 oranges.", lalein.format("baskets_with_oranges", 7, 9));
 
         assertEquals("This does not exist", lalein.format("This does not exist"));
+
+        assertEquals(map, reverse);
+        assertEquals(lalein, MapLalein.fromMap(reverse));
     }
 
 }

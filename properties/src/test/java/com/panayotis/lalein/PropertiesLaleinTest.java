@@ -3,6 +3,7 @@ package com.panayotis.lalein;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -10,7 +11,10 @@ public class PropertiesLaleinTest {
 
     @Test
     void fromString() throws IOException {
-        Lalein lalein = PropertiesLalein.fromResource("/Localizable.properties");
+        Properties properties = new Properties();
+        properties.load(PropertiesLaleinTest.class.getResourceAsStream("/Localizable.properties"));
+        Lalein lalein = PropertiesLalein.fromProperties(properties);
+        Properties reverse = PropertiesLalein.toProperties(lalein);
 
         assertEquals("I have peaches.", lalein.format("peaches"));
 
@@ -30,6 +34,9 @@ public class PropertiesLaleinTest {
         assertEquals("I have 7 baskets with 9 oranges.", lalein.format("baskets_with_oranges", 7, 9));
 
         assertEquals("This does not exist", lalein.format("This does not exist"));
+
+        assertEquals(properties, reverse);
+        assertEquals(lalein, PropertiesLalein.fromProperties(reverse));
     }
 
 }

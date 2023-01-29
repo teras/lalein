@@ -1,5 +1,7 @@
 package com.panayotis.lalein;
 
+import com.amihaiemil.eoyaml.Yaml;
+import com.amihaiemil.eoyaml.YamlMapping;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -10,7 +12,9 @@ public class YamlLaleinTest {
 
     @Test
     void fromString() throws IOException {
-        Lalein lalein = YamlLalein.fromResource("/Localizable.yaml");
+        YamlMapping yaml = Yaml.createYamlInput(YamlLaleinTest.class.getResourceAsStream("/Localizable.yaml")).readYamlMapping();
+        Lalein lalein = YamlLalein.fromYaml(yaml);
+        YamlMapping reverse = YamlLalein.toYaml(lalein);
 
         assertEquals("I have peaches.", lalein.format("peaches"));
 
@@ -30,6 +34,8 @@ public class YamlLaleinTest {
         assertEquals("I have 7 baskets with 9 oranges.", lalein.format("baskets_with_oranges", 7, 9));
 
         assertEquals("This does not exist", lalein.format("This does not exist"));
-    }
 
+        assertEquals(yaml, reverse);
+        assertEquals(lalein, YamlLalein.fromYaml(reverse));
+    }
 }

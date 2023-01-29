@@ -13,6 +13,7 @@ import java.util.Map;
 
 import static com.panayotis.lalein.PluralType.*;
 
+@SuppressWarnings("unused")
 public class JsonLalein {
     public static Lalein fromResource(String resource) throws IOException {
         return fromStream(JsonLalein.class.getResourceAsStream(resource));
@@ -82,6 +83,20 @@ public class JsonLalein {
             translations.put(handler, translation);
         }
         return new Lalein(translations);
+    }
+
+    public static JsonObject toJson(Lalein lalein) {
+        return LaleinToData.convert(lalein,
+                JsonObject::new,
+                i -> i,
+                (j, k, v) -> {
+                    j.add(k, v);
+                    return j;
+                },
+                (j, k, v) -> {
+                    j.add(k, v);
+                    return j;
+                });
     }
 
     private static JsonObject asObject(JsonValue value) {

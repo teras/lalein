@@ -1,6 +1,7 @@
 package com.panayotis.lalein;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -51,5 +52,22 @@ public class Lalein {
             matcher = tag.matcher(format);
         }
         return format;
+    }
+
+    Iterable<Map.Entry<String, Translation>> entries() {
+        return registry.entrySet();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Lalein)) return false;
+        Lalein lalein = (Lalein) o;
+        return registry.equals(lalein.registry);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(registry);
     }
 }

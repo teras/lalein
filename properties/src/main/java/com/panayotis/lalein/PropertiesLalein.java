@@ -4,8 +4,11 @@ import java.io.*;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.panayotis.lalein.PluralType.*;
 
 @SuppressWarnings("unused")
 public class PropertiesLalein {
@@ -47,6 +50,30 @@ public class PropertiesLalein {
             translations.put(handler, new Translation(data.getProperty(handler), parameters.isEmpty() ? null : parameters));
         }
         return new Lalein(translations);
+    }
+
+    public static Properties toProperties(Lalein lalein) {
+        Properties result = new Properties();
+        BiConsumer<String, Parameter> pluralTypes = (base, param) -> {
+            result.setProperty(base + "i", String.valueOf(param.argumentIndex));
+            if (param.zero != null) result.setProperty(base + ZERO.tag, param.zero);
+            if (param.one != null) result.setProperty(base + ONE.tag, param.one);
+            if (param.two != null) result.setProperty(base + TWO.tag, param.two);
+            if (param.few != null) result.setProperty(base + FEW.tag, param.few);
+            if (param.many != null) result.setProperty(base + MANY.tag, param.many);
+            if (param.other != null) result.setProperty(base + OTHER.tag, param.other);
+        };
+        lalein.entries().forEach(e -> {
+            Translation translation = e.getValue();
+            Map<String, Parameter> params = translation.parameters;
+            if (params == null || params.isEmpty())
+                result.setProperty(e.getKey(), translation.format);
+            else {
+                result.setProperty(e.getKey(), "%{" + params.keySet().iterator().next() + "}");
+                params.forEach((key, value) -> pluralTypes.accept(e.getKey() + "." + key + ".", value));
+            }
+        });
+        return result;
     }
 
     private static void findParams(String param, Properties properties, Map<String, Parameter> parameters, String handler) {

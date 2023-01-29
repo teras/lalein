@@ -59,6 +59,21 @@ public class MapLalein {
         return new Lalein(translations);
     }
 
+    public static Map<String, ?> toMap(Lalein lalein) {
+        return LaleinToData.convert(lalein,
+                () -> new LinkedHashMap<String, Object>(),
+                i -> i,
+                (j, k, v) -> {
+                    j.put(k, v);
+                    return j;
+                },
+                (j, k, v) -> {
+                    j.put(k, v);
+                    return j;
+                });
+    }
+
+
     private static Map<String, ?> asStringMap(Map<?, ?> input) {
         Object error = findNonString(input.keySet());
         if (error != null)

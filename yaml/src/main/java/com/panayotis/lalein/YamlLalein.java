@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.panayotis.lalein.PluralType.*;
@@ -18,15 +19,15 @@ public class YamlLalein {
     }
 
     public static Lalein fromString(String data) throws IOException {
-        return fromInput(Yaml.createYamlInput(data));
+        return fromYamlInput(Yaml.createYamlInput(data));
     }
 
     public static Lalein fromFile(File data) throws IOException {
-        return fromInput(Yaml.createYamlInput(data));
+        return fromYamlInput(Yaml.createYamlInput(data));
     }
 
     public static Lalein fromStream(InputStream data) throws IOException {
-        return fromInput(Yaml.createYamlInput(data));
+        return fromYamlInput(Yaml.createYamlInput(data));
     }
 
     public static Lalein fromReader(Reader data) throws IOException {
@@ -37,11 +38,11 @@ public class YamlLalein {
         return fromString(fileAsString);
     }
 
-    public static Lalein fromInput(YamlInput input) throws IOException {
-        return fromMapping(input.readYamlMapping());
+    public static Lalein fromYamlInput(YamlInput input) throws IOException {
+        return fromYaml(input.readYamlMapping());
     }
 
-    public static Lalein fromMapping(YamlMapping mapping) {
+    public static Lalein fromYaml(YamlMapping mapping) {
         Map<String, Translation> translations = new LinkedHashMap<>();
         for (YamlNode node : mapping.keys()) {
             YamlNode data = mapping.value(node);
@@ -84,6 +85,13 @@ public class YamlLalein {
         return new Lalein(translations);
     }
 
+    public static YamlMapping toYaml(Lalein lalein) {
+        return LaleinToData.convert(lalein,
+                Yaml::createYamlMappingBuilder,
+                YamlMappingBuilder::build,
+                YamlMappingBuilder::add,
+                YamlMappingBuilder::add);
+    }
 
     private static void addParam(YamlMapping value, String name, int index, String handler, Map<String, Parameter> parameters) {
         String invalid = PluralType.findInvalidKey(value

@@ -1,8 +1,12 @@
 package com.panayotis.lalein;
 
+import com.eclipsesource.json.Json;
+import com.eclipsesource.json.JsonObject;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -10,7 +14,11 @@ public class JsonLaleinTest {
 
     @Test
     void fromString() throws IOException {
-        Lalein lalein = JsonLalein.fromResource("/Localizable.json");
+        //noinspection DataFlowIssue
+        JsonObject json = Json.parse(new InputStreamReader(JsonLaleinTest.class.getResourceAsStream("/Localizable.json"), StandardCharsets.UTF_8)).asObject();
+        Lalein lalein = JsonLalein.fromJson(json);
+        JsonObject reverse = JsonLalein.toJson(lalein);
+
         assertEquals("I have peaches.", lalein.format("peaches"));
 
         assertEquals("I don't have apples.", lalein.format("apples", 0));
@@ -29,6 +37,9 @@ public class JsonLaleinTest {
         assertEquals("I have 7 baskets with 9 oranges.", lalein.format("baskets_with_oranges", 7, 9));
 
         assertEquals("This does not exist", lalein.format("This does not exist"));
+
+        assertEquals(json, reverse);
+        assertEquals(lalein, JsonLalein.fromJson(reverse));
     }
 
 }
