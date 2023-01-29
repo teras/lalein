@@ -3,8 +3,8 @@
 ### TL;DR
 
 This library helps Java projects to properly support i18n, by correctly handling plurals and text
-reformatting based on rules. The implementation is loosely based on Apple's `lproj` and Android's `strings.xml`
-approach.
+reformatting based on rules. The implementation is loosely based on Apple's `Localizable.stringsdict` and
+Android's `strings.xml` approach.
 
 An example of a translation file can be found using [JSON](#json-example), or [YAML](#yaml-example),
 or [Properties](#properties-example) format. To use in your own programs you need
@@ -36,7 +36,7 @@ translate some simple messages.
 If you want a more sophisticated approach, you are on your own. Messages like "_Copying 1 file(s) out of 3 file(s)_" are
 impossible to be properly generated, with aesthetically (or even grammatically) correct results.
 
-For siimple cases like "_Copying 1 file_" or "_Copying 2 files_", using code like this
+For simple cases like "_Copying 1 file_" or "_Copying 2 files_", using code like this
 
 ```java
 String message = count == 1 ? "Copying 1 file" : "Copying " + count + " files";
@@ -142,7 +142,7 @@ unit.
 
 In this example, the translation unit consists of 3 plural forms: `baskets`, `oranges`, and `oranges_zero_basket`.
 
-Translation always starts from the first plural format, which is binded with the first numeric parameter as well. When
+Translation always starts from the first plural format, which is bound with the first numeric parameter as well. When
 references of the form "`%{...}`" appear, then the system uses this tag to search for parameters with this handler. This
 procedure is recursive, until no more references are found.
 
@@ -162,10 +162,10 @@ as with the JSON format apply. Only the syntax of the configuration file follows
 #### Properties example
 
 Properties do not have internal structure, they are `key/value` based so special handling is needed when using this
-backend format. On the plus side, no extermal lirbaries are required and the size of `lalein` is at minimum. If there
+backend format. On the plus side, no external libraries are required and the size of `lalein` is at minimum. If there
 are no size concerns, it is advised to use a more user-readable format instead.
 
-An example of the same dataset as Properties, is [here](props/src/test/resources/Localizable.properties):
+An example of the same dataset as Properties, is [here](properties/src/test/resources/Localizable.properties):
 
 ```properties
 peaches=I have peaches.
@@ -199,11 +199,11 @@ The main differences with the other, structured, formats are:
     * `PARAMETER` is the name of the translation parameter
     * `FORM` is the plural form single letter name
 * The index of the parameter should be explicitly defined in a key named `UNIT.PARAMETER.i`
-* The parameter list is gathered automatically through recusrion from the various format Strings.
+* The parameter list is gathered automatically through recursion from the various format Strings.
 
 ### Usage in Java
 
-Here is an example, how to use this lirbary in your own code:
+Here is an example, how to use this library in your own code:
 
 ```java
 // Java
@@ -235,13 +235,14 @@ For every localization a new localization file is of course required.
 
 ### How to add this library to your own projects
 
-To use this library on your own applications, wiht maven, you need to add either:
+To use this library on your own applications, with maven, you need to add either backend:
+
 ```xml
 <!-- JSON -->
 <dependency>
     <groupId>com.panayotis.lalein</groupId>
     <artifactId>json</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 or
@@ -250,7 +251,7 @@ or
 <dependency>
     <groupId>com.panayotis.lalein</groupId>
     <artifactId>yaml</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 or
@@ -259,6 +260,6 @@ or
 <dependency>
     <groupId>com.panayotis.lalein</groupId>
     <artifactId>properties</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.0</version>
 </dependency>
 ```
