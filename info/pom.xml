@@ -6,7 +6,7 @@
     <parent>
         <artifactId>project</artifactId>
         <groupId>com.panayotis.lalein</groupId>
-        <version>1.1.0</version>
+        <version>1.1.1</version>
     </parent>
     <description>Translations in Java: The proper way. Info support library</description>
 
@@ -16,12 +16,12 @@
         <dependency>
             <groupId>com.panayotis.lalein</groupId>
             <artifactId>core</artifactId>
-            <version>1.1.0</version>
+            <version>1.1.1</version>
         </dependency>
         <dependency>
             <groupId>com.panayotis.lalein</groupId>
             <artifactId>yaml</artifactId>
-            <version>1.1.0</version>
+            <version>1.1.1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

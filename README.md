@@ -241,7 +241,7 @@ To use this library on your own applications, wiht maven, you need to add either
 <dependency>
     <groupId>com.panayotis.lalein</groupId>
     <artifactId>json</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
 </dependency>
 ```
 or
@@ -250,7 +250,7 @@ or
 <dependency>
     <groupId>com.panayotis.lalein</groupId>
     <artifactId>yaml</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
 </dependency>
 ```
 or
@@ -259,6 +259,6 @@ or
 <dependency>
     <groupId>com.panayotis.lalein</groupId>
     <artifactId>properties</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
 </dependency>
 ```

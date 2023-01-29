@@ -6,7 +6,7 @@
     <parent>
         <artifactId>project</artifactId>
         <groupId>com.panayotis.lalein</groupId>
-        <version>1.1.0</version>
+        <version>1.1.1</version>
     </parent>
     <description>Translations in Java: The proper way. Using YAML as backend</description>
 
@@ -21,7 +21,7 @@
         <dependency>
             <groupId>com.panayotis.lalein</groupId>
             <artifactId>core</artifactId>
-            <version>1.1.0</version>
+            <version>1.1.1</version>
         </dependency>
     </dependencies>
 </project>
