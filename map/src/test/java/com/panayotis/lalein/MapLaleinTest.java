@@ -13,9 +13,9 @@ public class MapLaleinTest {
     @Test
     void fromString() throws IOException {
         @SuppressWarnings("unchecked")
-        Map<String, ?> map = new ObjectMapper().readValue(MapLaleinTest.class.getResourceAsStream("/Localizable.json"), Map.class);
+        Map<String, Object> map = new ObjectMapper().readValue(MapLaleinTest.class.getResourceAsStream("/Localizable.json"), Map.class);
         Lalein lalein = MapLalein.fromMap(map);
-        Map<String, ?> reverse = MapLalein.toMap(lalein);
+        Map<String, Object> reverse = MapLalein.toMap(lalein);
 
         assertEquals("I have peaches.", lalein.format("peaches"));
 

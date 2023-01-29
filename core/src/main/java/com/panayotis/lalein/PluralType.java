@@ -2,6 +2,7 @@ package com.panayotis.lalein;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public enum PluralType {
@@ -19,7 +20,7 @@ public enum PluralType {
         this.tag = tag;
     }
 
-    public static String findInvalidKey(Collection<String> keysToCheck) {
+    public static String findInvalidKey(Iterable<String> keysToCheck) {
         for (String key : keysToCheck)
             if (!ALL_TAGS.contains(key))
                 return key;
