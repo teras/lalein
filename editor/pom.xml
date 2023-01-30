@@ -18,7 +18,6 @@
         <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
         <kotlin.version>1.7.10</kotlin.version>
         <flatlaf.version>2.4</flatlaf.version>
-        <antlr.version>4.9.3</antlr.version>
         <minimal-json.version>0.9.5</minimal-json.version>
     </properties>
 

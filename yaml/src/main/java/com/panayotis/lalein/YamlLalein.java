@@ -11,23 +11,31 @@ import java.util.Scanner;
 
 @SuppressWarnings("unused")
 public class YamlLalein {
-    public static Lalein fromResource(String resource) throws IOException {
-        return fromStream(YamlLalein.class.getResourceAsStream(resource));
+    public static Lalein fromResource(String resource) {
+        try (InputStream is = YamlLalein.class.getResourceAsStream(resource)) {
+            return fromStream(is);
+        } catch (IOException e) {
+            throw new LaleinException("YAML", "resource " + resource, e);
+        }
     }
 
-    public static Lalein fromString(String data) throws IOException {
+    public static Lalein fromString(String data) {
         return fromYamlInput(Yaml.createYamlInput(data));
     }
 
-    public static Lalein fromFile(File data) throws IOException {
+    public static Lalein fromFile(File data) {
+        try {
+            return fromYamlInput(Yaml.createYamlInput(data));
+        } catch (IOException e) {
+            throw new LaleinException("YAML", "file " + data.getAbsolutePath(), e);
+        }
+    }
+
+    public static Lalein fromStream(InputStream data) {
         return fromYamlInput(Yaml.createYamlInput(data));
     }
 
-    public static Lalein fromStream(InputStream data) throws IOException {
-        return fromYamlInput(Yaml.createYamlInput(data));
-    }
-
-    public static Lalein fromReader(Reader data) throws IOException {
+    public static Lalein fromReader(Reader data) {
         Scanner scanner = new Scanner(data);
         scanner.useDelimiter("\\A");
         String fileAsString = scanner.hasNext() ? scanner.next() : "";
@@ -35,8 +43,12 @@ public class YamlLalein {
         return fromString(fileAsString);
     }
 
-    public static Lalein fromYamlInput(YamlInput input) throws IOException {
-        return fromYaml(input.readYamlMapping());
+    public static Lalein fromYamlInput(YamlInput input) {
+        try {
+            return fromYaml(input.readYamlMapping());
+        } catch (IOException e) {
+            throw new LaleinException("YAML", input.getClass().getName(), e);
+        }
     }
 
     public static Lalein fromYaml(YamlMapping mapping) {

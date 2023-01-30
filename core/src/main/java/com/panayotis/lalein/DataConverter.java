@@ -120,7 +120,8 @@ class DataConverter {
             Function<M, Iterable<String>> keys,
             BiFunction<M, String, V> findValue,
             Function<V, String> asString,
-            String name, int index,
+            String name,
+            int index,
             String handler,
             Map<String, Parameter> parameters) {
         String invalid = PluralType.findInvalidKey(keys.apply(value));
@@ -144,6 +145,3 @@ class DataConverter {
     }
 }
 
-interface TriFunction<R, K, V> {
-    R apply(R data, K key, V value);
-}

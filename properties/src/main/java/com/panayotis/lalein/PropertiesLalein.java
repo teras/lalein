@@ -1,6 +1,7 @@
 package com.panayotis.lalein;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -14,29 +15,48 @@ import static com.panayotis.lalein.PluralType.*;
 public class PropertiesLalein {
     private static final Pattern tag = Pattern.compile("%\\{(\\w+)}");
 
-    public static Lalein fromResource(String resource) throws IOException {
-        return fromStream(PropertiesLalein.class.getResourceAsStream(resource));
+    public static Lalein fromResource(String resource) {
+        try (InputStream is = PropertiesLalein.class.getResourceAsStream(resource)) {
+            return fromStream(is);
+        } catch (IOException e) {
+            throw new LaleinException("Properties", "resource " + resource, e);
+        }
     }
 
-    public static Lalein fromString(String data) throws IOException {
-        return fromReader(new StringReader(data));
+    public static Lalein fromString(String data) {
+        try (Reader reader = new StringReader(data)) {
+            return fromReader(reader);
+        } catch (IOException e) {
+            throw new LaleinException("Properties", "string data", e);
+        }
     }
 
-    public static Lalein fromFile(File data) throws IOException {
-        //noinspection IOStreamConstructor
-        return fromStream(new FileInputStream(data));
+    public static Lalein fromFile(File data) {
+        try (InputStream is = Files.newInputStream(data.toPath())) {
+            return fromStream(is);
+        } catch (IOException e) {
+            throw new LaleinException("Properties", "file " + data.getAbsolutePath(), e);
+        }
     }
 
 
-    public static Lalein fromStream(InputStream data) throws IOException {
+    public static Lalein fromStream(InputStream data) {
         Properties properties = new Properties();
-        properties.load(data);
+        try {
+            properties.load(data);
+        } catch (IOException e) {
+            throw new LaleinException("Properties", data.getClass().getName(), e);
+        }
         return fromProperties(properties);
     }
 
-    public static Lalein fromReader(Reader data) throws IOException {
+    public static Lalein fromReader(Reader data) {
         Properties properties = new Properties();
-        properties.load(data);
+        try {
+            properties.load(data);
+        } catch (IOException e) {
+            throw new LaleinException("Properties", data.getClass().getName(), e);
+        }
         return fromProperties(properties);
     }
 
