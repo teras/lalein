@@ -1,4 +1,4 @@
-## Translations in Java: The proper way
+## Internationalization - i18n - in Java: The proper way
 
 ### TL;DR
 
