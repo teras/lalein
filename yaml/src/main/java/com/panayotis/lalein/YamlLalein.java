@@ -6,7 +6,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
-import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 @SuppressWarnings("unused")
@@ -52,33 +53,39 @@ public class YamlLalein {
     }
 
     public static Lalein fromYaml(YamlMapping mapping) {
-        return DataConverter.toLalein(mapping,
-                m -> () -> new Iterator<String>() {
-                    private final Iterator<YamlNode> iterator = m.keys().iterator();
-
-                    @Override
-                    public boolean hasNext() {
-                        return iterator.hasNext();
-                    }
-
-                    @Override
-                    public String next() {
-                        return iterator.next().asScalar().value();
-                    }
-                },
-                YamlMapping::values,
-                YamlMapping::value,
-                it -> it != null && it.type() == Node.SCALAR,
-                it -> it != null && it.type() == Node.MAPPING,
-                it -> it == null ? null : it.asScalar().value(),
-                YamlNode::asMapping);
+        return DataConverter.toLalein(yamlToMap(mapping));
     }
 
     public static YamlMapping toYaml(Lalein lalein) {
-        return DataConverter.fromLalein(lalein,
-                Yaml::createYamlMappingBuilder,
-                YamlMappingBuilder::build,
-                YamlMappingBuilder::add,
-                YamlMappingBuilder::add);
+        return mapToYaml(DataConverter.fromLalein(lalein));
+    }
+
+    private static Map<String, Object> yamlToMap(YamlMapping mapping) {
+        Map<String, Object> m = new LinkedHashMap<>();
+        for (YamlNode keyNode : mapping.keys()) {
+            String key = keyNode.asScalar().value();
+            YamlNode value = mapping.value(key);
+            if (value == null) continue;
+            if (value.type() == Node.SCALAR)
+                m.put(key, value.asScalar().value());
+            else if (value.type() == Node.MAPPING)
+                m.put(key, yamlToMap(value.asMapping()));
+            else
+                throw new LaleinException("Unexpected YAML node type for key " + key);
+        }
+        return m;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static YamlMapping mapToYaml(Map<String, Object> m) {
+        YamlMappingBuilder builder = Yaml.createYamlMappingBuilder();
+        for (Map.Entry<String, Object> e : m.entrySet()) {
+            Object v = e.getValue();
+            if (v instanceof String)
+                builder = builder.add(e.getKey(), (String) v);
+            else
+                builder = builder.add(e.getKey(), mapToYaml((Map<String, Object>) v));
+        }
+        return builder.build();
     }
 }

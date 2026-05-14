@@ -5,11 +5,8 @@ import java.nio.file.Files;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static com.panayotis.lalein.PluralType.*;
 
 @SuppressWarnings("unused")
 public class PropertiesLalein {
@@ -74,25 +71,27 @@ public class PropertiesLalein {
 
     public static Properties toProperties(Lalein lalein) {
         Properties result = new Properties();
-        BiConsumer<String, Parameter> pluralTypes = (base, param) -> {
-            result.setProperty(base + "i", String.valueOf(param.argumentIndex));
-            if (param.zero != null) result.setProperty(base + ZERO.tag, param.zero);
-            if (param.one != null) result.setProperty(base + ONE.tag, param.one);
-            if (param.two != null) result.setProperty(base + TWO.tag, param.two);
-            if (param.few != null) result.setProperty(base + FEW.tag, param.few);
-            if (param.many != null) result.setProperty(base + MANY.tag, param.many);
-            if (param.other != null) result.setProperty(base + OTHER.tag, param.other);
-        };
-        lalein.entries().forEach(e -> {
+        for (Map.Entry<String, Translation> e : lalein.entries()) {
+            String handler = e.getKey();
             Translation translation = e.getValue();
             Map<String, Parameter> params = translation.parameters;
-            if (params == null || params.isEmpty())
-                result.setProperty(e.getKey(), translation.format);
-            else {
-                result.setProperty(e.getKey(), "%{" + params.keySet().iterator().next() + "}");
-                params.forEach((key, value) -> pluralTypes.accept(e.getKey() + "." + key + ".", value));
+            if (params == null || params.isEmpty()) {
+                result.setProperty(handler, translation.format);
+            } else {
+                result.setProperty(handler, "%{" + params.keySet().iterator().next() + "}");
+                for (Map.Entry<String, Parameter> pe : params.entrySet()) {
+                    String base = handler + "." + pe.getKey() + ".";
+                    Parameter p = pe.getValue();
+                    result.setProperty(base + "i", String.valueOf(p.argumentIndex));
+                    if (p.zero != null) result.setProperty(base + "z", p.zero);
+                    if (p.one != null) result.setProperty(base + "o", p.one);
+                    if (p.two != null) result.setProperty(base + "t", p.two);
+                    if (p.few != null) result.setProperty(base + "f", p.few);
+                    if (p.many != null) result.setProperty(base + "m", p.many);
+                    if (p.other != null) result.setProperty(base + "r", p.other);
+                }
             }
-        });
+        }
         return result;
     }
 
@@ -100,12 +99,13 @@ public class PropertiesLalein {
         if (param == null) {
             findEntryParam(properties.getProperty(handler), properties, parameters, handler);
         } else {
-            findEntryParam(properties.getProperty(handler + "." + param + ".z"), properties, parameters, handler);
-            findEntryParam(properties.getProperty(handler + "." + param + ".o"), properties, parameters, handler);
-            findEntryParam(properties.getProperty(handler + "." + param + ".t"), properties, parameters, handler);
-            findEntryParam(properties.getProperty(handler + "." + param + ".f"), properties, parameters, handler);
-            findEntryParam(properties.getProperty(handler + "." + param + ".m"), properties, parameters, handler);
-            findEntryParam(properties.getProperty(handler + "." + param + ".r"), properties, parameters, handler);
+            String base = handler + "." + param + ".";
+            findEntryParam(properties.getProperty(base + "z"), properties, parameters, handler);
+            findEntryParam(properties.getProperty(base + "o"), properties, parameters, handler);
+            findEntryParam(properties.getProperty(base + "t"), properties, parameters, handler);
+            findEntryParam(properties.getProperty(base + "f"), properties, parameters, handler);
+            findEntryParam(properties.getProperty(base + "m"), properties, parameters, handler);
+            findEntryParam(properties.getProperty(base + "r"), properties, parameters, handler);
         }
     }
 
@@ -116,13 +116,15 @@ public class PropertiesLalein {
         while (matcher.find()) {
             String name = matcher.group(1);
             if (!parameters.containsKey(name)) {
-                parameters.put(name, new Parameter(Integer.parseInt(properties.getProperty(handler + "." + name + ".i")),
-                        properties.getProperty(handler + "." + name + ".z"),
-                        properties.getProperty(handler + "." + name + ".o"),
-                        properties.getProperty(handler + "." + name + ".t"),
-                        properties.getProperty(handler + "." + name + ".f"),
-                        properties.getProperty(handler + "." + name + ".m"),
-                        properties.getProperty(handler + "." + name + ".r")));
+                String base = handler + "." + name + ".";
+                parameters.put(name, new Parameter(
+                        Integer.parseInt(properties.getProperty(base + "i")),
+                        properties.getProperty(base + "z"),
+                        properties.getProperty(base + "o"),
+                        properties.getProperty(base + "t"),
+                        properties.getProperty(base + "f"),
+                        properties.getProperty(base + "m"),
+                        properties.getProperty(base + "r")));
                 findParams(name, properties, parameters, handler);
             }
         }
