@@ -3,11 +3,12 @@
 ### TL;DR
 
 This library helps Java projects to properly support i18n, by correctly handling plurals and text
-reformatting based on rules. The implementation is loosely based on Apple's `Localizable.stringsdict` and
-Android's `strings.xml` approach.
+reformatting based on rules. Plural categories follow the CLDR standard (`zero`, `one`, `two`, `few`,
+`many`, `other`), shared with mainstream mobile and web localization tooling.
 
-An example of a translation file can be found using [JSON](#json-example), or [YAML](#yaml-example),
-or [Properties](#properties-example) format. To use in your own programs you need
+Translation files are supported in [JSON](#json-example), [YAML](#yaml-example),
+[Properties](#properties-example), Apple's [String Catalog (.xcstrings)](#xcstrings-example),
+Mozilla's [Fluent (.ftl)](#fluent-example), or a programmatic [Java Map](#map-example). To use in your own programs you need
 to [import the library](#how-to-add-this-library-to-your-own-projects) and [use it in your code](#usage-in-java).
 
 ### TOC
@@ -26,6 +27,9 @@ to [import the library](#how-to-add-this-library-to-your-own-projects) and [use 
     * [Explicit master format](#explicit-master-format)
   * [YAML example](#yaml-example)
   * [Properties example](#properties-example)
+  * [XCStrings example](#xcstrings-example)
+  * [Fluent example](#fluent-example)
+  * [Map example](#map-example)
 * [Usage in Java](#usage-in-java)
 * [How to add this library to your own projects](#how-to-add-this-library-to-your-own-projects)
 
@@ -57,7 +61,9 @@ handles all _Language Plural Rules_. When using `lalein` messages with arbitrary
 * _Copying 1 file out of 2 files_
 * _Copying 3 files out of 4 files_
 
-are easy to implement. The configuration is in plain, human-readable, JSON, YAML, or Properties format.
+are easy to implement. Translations can be authored in any of the supported formats — plain JSON, YAML, Java
+Properties, String Catalogs, Fluent, or a programmatic Java `Map` — and every backend round-trips
+into every other, so the same source can drive different downstream consumers.
 
 ### Translations format
 
@@ -72,9 +78,11 @@ are easy to implement. The configuration is in plain, human-readable, JSON, YAML
 
 #### JSON example
 
-Although the translation definitions are data-driven, and can be fully customized to fit your needs, the library by
-default provides two backends, under JSON and under YAML. Here there will be an example of how to handle different
-scenarios using the JSON backend. The full example file can be found [here](json/src/test/resources/Localizable.json).
+Although the translation definitions are data-driven, and can be fully customized to fit your needs, the library
+ships with several backends: JSON, YAML, Properties, String Catalog (.xcstrings), Fluent (.ftl)
+and a plain `Map<String, Object>` for programmatic use. The next sections walk through the JSON form (which is the
+most general); the other backends accept the same translation structure with their own syntactic conventions. The
+full JSON example file lives [here](json/src/test/resources/Localizable.json).
 
 ##### Simple definitions
 
@@ -291,26 +299,107 @@ The main differences with the other, structured, formats are:
 * The index of the parameter should be explicitly defined in a key named `UNIT.PARAMETER.i`
 * The parameter list is gathered automatically through recursion from the various format Strings.
 
+#### XCStrings example
+
+Apple's String Catalog (`.xcstrings`) — the JSON-based format introduced with Xcode 15 — is supported as a first-class
+backend. Catalogs may carry multiple locales in a single file; the loader accepts a language parameter or falls back
+to the catalog's `sourceLanguage`. Plural variants follow the standard CLDR categories (`zero`, `one`, `two`, `few`,
+`many`, `other`), and multi-parameter messages are represented through `substitutions` with explicit `argNum` and
+`formatSpecifier`. The full example file lives [here](xcstrings/src/test/resources/Localizable.xcstrings).
+
+```json
+{
+  "sourceLanguage": "en",
+  "version": "1.0",
+  "strings": {
+    "apples": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one":   { "stringUnit": { "state": "translated", "value": "I have an apple." } },
+              "other": { "stringUnit": { "state": "translated", "value": "I have %lld apples." } }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+Apple-specific format specifiers (`%lld`, `%@`, `%arg`) are translated to their Java equivalents transparently.
+
+#### Fluent example
+
+Mozilla's [Fluent](https://projectfluent.org/) (`.ftl`) is also supported, written with a small hand-rolled parser
+that needs no external dependencies. Nested select expressions map directly onto Lalein's multi-parameter plurals,
+making it the most expressive backend in the set. The full example file lives [here](fluent/src/test/resources/Localizable.ftl).
+
+```fluent
+peaches = I have peaches.
+
+apples = { $count ->
+    [zero]  I don't have apples.
+    [one]   I have an apple.
+    [two]   I have two apples.
+   *[other] I have { $count } apples.
+}
+```
+
+Each Fluent variable becomes a Lalein `Parameter`; argument indices are assigned by order of first appearance.
+
+#### Map example
+
+For programmatic, in-memory usage, a `Map<String, Object>` mirroring the JSON structure can be passed directly:
+
+```java
+Map<String, Object> apples = new LinkedHashMap<>();
+apples.put("o", "I have an apple.");
+apples.put("r", "I have %d apples.");
+Map<String, Object> data = new LinkedHashMap<>();
+data.put("apples", apples);
+Lalein lalein = MapLalein.fromMap(data);
+```
+
+This is the minimal-dependency backend (only `lalein-core` is required) and is useful for tests, code generation,
+or building translation data dynamically without round-tripping through a text format.
+
 ### Usage in Java
 
 Here is an example, how to use this library in your own code:
 
 ```java
-// Java
+// JSON
 Lalein lalein = JsonLalein.fromResource("/Localizable.en.json");
-```
 
-```java
 // YAML
 Lalein lalein = YamlLalein.fromResource("/Localizable.en.yaml");
-```
 
-```java
 // Properties
 Lalein lalein = PropertiesLalein.fromResource("/Localizable.en.properties");
+
+// XCStrings — second argument is the target language
+Lalein lalein = XcStringsLalein.fromResource("/Localizable.xcstrings", "en");
+
+// Fluent
+Lalein lalein = FluentLalein.fromResource("/Localizable.ftl");
+
+// Map (programmatic)
+Lalein lalein = MapLalein.fromMap(someMap);
 ```
 
-and then, to format a string based on the translation unit handler:
+Translations loaded from any backend can be re-emitted to any other — handy for migration or for keeping a single
+authoring format synchronised with platform-specific outputs:
+
+```java
+Lalein source = YamlLalein.fromResource("/Localizable.yaml");
+JsonObject xcstrings = XcStringsLalein.toJson(source, "en");
+String fluentText   = FluentLalein.toString(source);
+Properties props    = PropertiesLalein.toProperties(source);
+```
+
+Then, to format a string based on the translation unit handler:
 
 ```java
 System.out.println(lalein.format("I have baskets with oranges", 0, 1));
@@ -325,31 +414,57 @@ For every localization a new localization file is of course required.
 
 ### How to add this library to your own projects
 
-To use this library on your own applications, with maven, you need to add either backend:
+With Maven, add the backend dependency that matches your translation format. Each backend transitively pulls in
+`lalein-core`, so you do not need to declare it separately.
 
 ```xml
 <!-- JSON -->
 <dependency>
     <groupId>com.panayotis.lalein</groupId>
     <artifactId>json</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.2</version>
 </dependency>
 ```
-or
 ```xml
 <!-- YAML -->
 <dependency>
     <groupId>com.panayotis.lalein</groupId>
     <artifactId>yaml</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.2</version>
 </dependency>
 ```
-or
 ```xml
-<!-- Properties -->
+<!-- Properties (no extra runtime dependencies — smallest footprint) -->
 <dependency>
     <groupId>com.panayotis.lalein</groupId>
     <artifactId>properties</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.2</version>
 </dependency>
 ```
+```xml
+<!-- XCStrings (String Catalog) -->
+<dependency>
+    <groupId>com.panayotis.lalein</groupId>
+    <artifactId>xcstrings</artifactId>
+    <version>1.1.2</version>
+</dependency>
+```
+```xml
+<!-- Fluent — Mozilla .ftl (no extra runtime dependencies) -->
+<dependency>
+    <groupId>com.panayotis.lalein</groupId>
+    <artifactId>fluent</artifactId>
+    <version>1.1.2</version>
+</dependency>
+```
+```xml
+<!-- Map — programmatic, no I/O -->
+<dependency>
+    <groupId>com.panayotis.lalein</groupId>
+    <artifactId>map</artifactId>
+    <version>1.1.2</version>
+</dependency>
+```
+
+Backends can be combined freely in the same project; for example, a build tool might depend on `xcstrings` and
+`yaml` simultaneously to convert between the two.

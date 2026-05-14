@@ -18,6 +18,8 @@
         <module>yaml</module>
         <module>properties</module>
         <module>map</module>
+        <module>xcstrings</module>
+        <module>fluent</module>
     </modules>
 
     <properties>

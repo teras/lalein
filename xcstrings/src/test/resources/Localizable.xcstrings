@@ -1,0 +1,78 @@
+{
+  "sourceLanguage" : "en",
+  "version" : "1.0",
+  "strings" : {
+    "peaches" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I have peaches."
+          }
+        }
+      }
+    },
+    "apples" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "zero"  : { "stringUnit" : { "state" : "translated", "value" : "I don't have apples." } },
+              "one"   : { "stringUnit" : { "state" : "translated", "value" : "I have an apple." } },
+              "two"   : { "stringUnit" : { "state" : "translated", "value" : "I have two apples." } },
+              "other" : { "stringUnit" : { "state" : "translated", "value" : "I have %lld apples." } }
+            }
+          }
+        }
+      }
+    },
+    "baskets_with_oranges" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%#@baskets@"
+          },
+          "substitutions" : {
+            "baskets" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "zero"  : { "stringUnit" : { "state" : "translated", "value" : "I don't have a basket %#@oranges_zero_basket@." } },
+                  "one"   : { "stringUnit" : { "state" : "translated", "value" : "I have a basket %#@oranges@." } },
+                  "other" : { "stringUnit" : { "state" : "translated", "value" : "I have %arg baskets %#@oranges@." } }
+                }
+              }
+            },
+            "oranges" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "zero"  : { "stringUnit" : { "state" : "translated", "value" : "without oranges" } },
+                  "one"   : { "stringUnit" : { "state" : "translated", "value" : "with one orange" } },
+                  "other" : { "stringUnit" : { "state" : "translated", "value" : "with %arg oranges" } }
+                }
+              }
+            },
+            "oranges_zero_basket" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "zero"  : { "stringUnit" : { "state" : "translated", "value" : "or an orange" } },
+                  "one"   : { "stringUnit" : { "state" : "translated", "value" : "but I have an orange" } },
+                  "other" : { "stringUnit" : { "state" : "translated", "value" : "but I have %arg oranges" } }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
