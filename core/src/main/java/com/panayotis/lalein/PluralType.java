@@ -1,9 +1,7 @@
 package com.panayotis.lalein;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.HashSet;
+import java.util.Set;
 
 public enum PluralType {
     ZERO("z"),
@@ -14,7 +12,11 @@ public enum PluralType {
     OTHER("r"); // remaining
     public final String tag;
 
-    private static final Collection<String> ALL_TAGS = Arrays.stream(PluralType.values()).map(it -> it.tag).collect(Collectors.toSet());
+    private static final Set<String> ALL_TAGS;
+    static {
+        ALL_TAGS = new HashSet<>();
+        for (PluralType t : values()) ALL_TAGS.add(t.tag);
+    }
 
     PluralType(String tag) {
         this.tag = tag;

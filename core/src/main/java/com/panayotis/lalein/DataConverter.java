@@ -1,102 +1,99 @@
 package com.panayotis.lalein;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
+import java.util.Set;
 
 import static com.panayotis.lalein.PluralType.*;
 
 class DataConverter {
-    static <B, M> M fromLalein(
-            Lalein lalein,
-            Supplier<B> mB,
-            Function<B, M> conv,
-            TriFunction<B, String, String> scalarAdd,
-            TriFunction<B, String, M> mapAdd) {
-        B result = mB.get();
+
+    /** Reserved key inside a parameter map that explicitly declares its argument index. */
+    private static final String INDEX_KEY = "i";
+
+    /** Reserved key at the multi-parameter level that explicitly declares the master format template. */
+    private static final String FORMAT_KEY = "format";
+
+    static Map<String, Object> fromLalein(Lalein lalein) {
+        Map<String, Object> result = new LinkedHashMap<>();
         for (Map.Entry<String, Translation> e : lalein.entries()) {
             Translation translation = e.getValue();
             Map<String, Parameter> params = translation.parameters;
             if (params == null || params.isEmpty())
-                result = scalarAdd.apply(result, e.getKey(), translation.format);
+                result.put(e.getKey(), translation.format);
             else if (params.size() == 1)
-                result = mapAdd.apply(result, e.getKey(), getPlural(params.values().iterator().next(), mB, conv, scalarAdd));
+                result.put(e.getKey(), getPlural(params.values().iterator().next()));
             else {
-                B multiParams = mB.get();
+                Map<String, Object> multi = new LinkedHashMap<>();
+                String firstKey = params.keySet().iterator().next();
+                if (!("%{" + firstKey + "}").equals(translation.format))
+                    multi.put(FORMAT_KEY, translation.format);
                 int oldIdx = 0;
-                for (String name : params.keySet()) {
-                    Parameter param = params.get(name);
+                for (Map.Entry<String, Parameter> pe : params.entrySet()) {
+                    Parameter param = pe.getValue();
                     String prefix = oldIdx == param.argumentIndex ? "^" : "";
-                    multiParams = mapAdd.apply(multiParams, prefix + name, getPlural(param, mB, conv, scalarAdd));
+                    multi.put(prefix + pe.getKey(), getPlural(param));
                     oldIdx = param.argumentIndex;
                 }
-                result = mapAdd.apply(result, e.getKey(), conv.apply(multiParams));
+                result.put(e.getKey(), multi);
             }
         }
-        return conv.apply(result);
+        return result;
     }
 
-    private static <B, M> M getPlural(
-            Parameter param,
-            Supplier<B> mB,
-            Function<B, M> conv,
-            TriFunction<B, String, String> scalarAdd) {
-        B o = mB.get();
-        if (param.zero != null) o = scalarAdd.apply(o, ZERO.tag, param.zero);
-        if (param.one != null) o = scalarAdd.apply(o, ONE.tag, param.one);
-        if (param.two != null) o = scalarAdd.apply(o, TWO.tag, param.two);
-        if (param.few != null) o = scalarAdd.apply(o, FEW.tag, param.few);
-        if (param.many != null) o = scalarAdd.apply(o, MANY.tag, param.many);
-        if (param.other != null) o = scalarAdd.apply(o, OTHER.tag, param.other);
-        return conv.apply(o);
+    private static Map<String, Object> getPlural(Parameter param) {
+        Map<String, Object> o = new LinkedHashMap<>();
+        if (param.zero != null) o.put(ZERO.tag, param.zero);
+        if (param.one != null) o.put(ONE.tag, param.one);
+        if (param.two != null) o.put(TWO.tag, param.two);
+        if (param.few != null) o.put(FEW.tag, param.few);
+        if (param.many != null) o.put(MANY.tag, param.many);
+        if (param.other != null) o.put(OTHER.tag, param.other);
+        return o;
     }
 
-    static <M, V> Lalein toLalein(
-            M mapping,
-            Function<M, Iterable<String>> keys,
-            Function<M, Iterable<V>> values,
-            BiFunction<M, String, V> findValue,
-            Predicate<V> isString,
-            Predicate<V> isMap,
-            Function<V, String> asString,
-            Function<V, M> asMap) {
+    static Lalein toLalein(Map<String, Object> mapping) {
         Map<String, Translation> translations = new LinkedHashMap<>();
-        for (String handler : keys.apply(mapping)) {
-            V data = findValue.apply(mapping, handler);
+        for (Map.Entry<String, Object> e : mapping.entrySet()) {
+            String handler = e.getKey();
+            Object data = e.getValue();
             String format;
             Map<String, Parameter> parameters;
-            if (isString.test(data)) {
-                format = asString.apply(data);
+            if (data instanceof String) {
+                format = (String) data;
                 parameters = null;
             } else {
-                M mData = asMap.apply(data);
+                Map<String, Object> mData = asMap(data);
                 parameters = new LinkedHashMap<>();
-                if (allChildrenAreStrings(mData, values, isString)) {
-                    // Simple version: only one parameter
+                if (allChildrenAreScalarOrIndex(mData)) {
                     format = "%{base}";
-                    addParam(mData, keys, findValue, asString, "base", 1, handler, parameters);
+                    addParam(mData, "base", 1, handler, parameters);
                 } else {
-                    // More complex version: parameters could be more than one
-                    format = null;
+                    Object explicitFormat = mData.get(FORMAT_KEY);
+                    format = explicitFormat instanceof String ? (String) explicitFormat : null;
                     int previousIndex = 0;
-                    for (String key : keys.apply(mData)) {
-                        V value = findValue.apply(mData, key);
-                        // the format is the first key
+                    for (Map.Entry<String, Object> ce : mData.entrySet()) {
+                        String key = ce.getKey();
+                        if (FORMAT_KEY.equals(key)) continue;
+                        Object value = ce.getValue();
+                        if (!(value instanceof Map))
+                            throw new LaleinException("Waiting for a map with key " + key + " but no map found");
+                        Map<String, Object> paramMap = asMap(value);
+                        boolean caret = key.startsWith("^");
+                        if (caret) key = key.substring(1);
                         if (format == null)
                             format = "%{" + key + "}";
+                        Object explicit = paramMap.get(INDEX_KEY);
                         int index;
-                        if (key.startsWith("^")) {
-                            key = key.substring(1);
+                        if (explicit != null)
+                            index = toInt(explicit);
+                        else if (caret)
                             index = previousIndex;
-                        } else
-                            index = ++previousIndex;
-                        if (isMap.test(value))
-                            addParam(asMap.apply(value), keys, findValue, asString, key, index, handler, parameters);
                         else
-                            throw new LaleinException("Waiting for a map with key " + key + " but no map found");
+                            index = ++previousIndex;
+                        previousIndex = index;
+                        addParam(paramMap, key, index, handler, parameters);
                     }
                 }
             }
@@ -105,43 +102,38 @@ class DataConverter {
         return new Lalein(translations);
     }
 
-    private static <M, V> boolean allChildrenAreStrings(
-            M data,
-            Function<M, Iterable<V>> values,
-            Predicate<V> isString) {
-        for (V value : values.apply(data))
-            if (!isString.test(value))
+    private static boolean allChildrenAreScalarOrIndex(Map<String, Object> data) {
+        for (Map.Entry<String, Object> e : data.entrySet()) {
+            if (INDEX_KEY.equals(e.getKey())) continue;
+            if (!(e.getValue() instanceof String))
                 return false;
+        }
         return true;
     }
 
-    private static <M, N, V> void addParam(
-            M value,
-            Function<M, Iterable<String>> keys,
-            BiFunction<M, String, V> findValue,
-            Function<V, String> asString,
-            String name,
-            int index,
-            String handler,
-            Map<String, Parameter> parameters) {
-        String invalid = PluralType.findInvalidKey(keys.apply(value));
+    @SuppressWarnings("unchecked")
+    private static Map<String, Object> asMap(Object o) {
+        return (Map<String, Object>) o;
+    }
+
+    private static int toInt(Object o) {
+        return o instanceof Number ? ((Number) o).intValue() : Integer.parseInt(o.toString());
+    }
+
+    private static void addParam(Map<String, Object> value, String name, int index, String handler, Map<String, Parameter> parameters) {
+        Object explicit = value.get(INDEX_KEY);
+        if (explicit != null) index = toInt(explicit);
+        Set<String> tagKeys = new LinkedHashSet<>(value.keySet());
+        tagKeys.remove(INDEX_KEY);
+        String invalid = PluralType.findInvalidKey(tagKeys);
         if (invalid != null)
             throw new IllegalArgumentException("Unknown tag " + invalid + " in parameter named " + name + " for handler '" + handler + "'");
-        parameters.put(name, getParameter(value, findValue, asString, index));
-    }
-
-    private static <M, V> Parameter getParameter(
-            M data,
-            BiFunction<M, String, V> findValue,
-            Function<V, String> asString,
-            int index) {
-        return new Parameter(index,
-                asString.apply(findValue.apply(data, ZERO.tag)),
-                asString.apply(findValue.apply(data, ONE.tag)),
-                asString.apply(findValue.apply(data, TWO.tag)),
-                asString.apply(findValue.apply(data, FEW.tag)),
-                asString.apply(findValue.apply(data, MANY.tag)),
-                asString.apply(findValue.apply(data, OTHER.tag)));
+        parameters.put(name, new Parameter(index,
+                (String) value.get(ZERO.tag),
+                (String) value.get(ONE.tag),
+                (String) value.get(TWO.tag),
+                (String) value.get(FEW.tag),
+                (String) value.get(MANY.tag),
+                (String) value.get(OTHER.tag)));
     }
 }
-

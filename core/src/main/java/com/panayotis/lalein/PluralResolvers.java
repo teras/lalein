@@ -1,8 +1,6 @@
 package com.panayotis.lalein;
 
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 
 import static com.panayotis.lalein.PluralType.ONE;
 
@@ -15,21 +13,16 @@ public class PluralResolvers {
     final static double TWO_LOWER = 1.999999d;
     final static double TWO_UPPER = 2.000001d;
 
-    private static final Map<String, PluralResolver> specialResolvers = new HashMap<>();
-
-    static {
-        // exactly zero -> 1
-        specialResolvers.put("/ak/bho/ln/mg/nso/pa/ti/wa/", n -> n.doubleValue() >= ZERO_LOWER && n.doubleValue() <= ZERO_UPPER ? ONE : null);
-        // zero to one -> 1
-        specialResolvers.put("/am/as/bn/gu/guw/hi/kn/pcm/fa/zu/", n -> n.doubleValue() <= ONE_UPPER ? ONE : null);
-        // zero to almost two -> 1
-        specialResolvers.put("/hy/fr/ff/kab/", n -> n.doubleValue() < TWO_LOWER ? ONE : null);
-        // between more than zero and almost 2 -> 1
-        specialResolvers.put("/da/lag/pt/", n -> n.doubleValue() > ZERO_UPPER && n.doubleValue() < TWO_LOWER ? ONE : null);
-        // not supported yet
-        specialResolvers.put("/ar/be/bs/br/ceb/tzm/kw/hr/cs/fil/he/is/ga/lv/lt/dsb/mk/mt/gv/ars/pl/prg/ro/ru/gd/sr/si/sk/sl/shi/uk/hsb/cy/", null);
-    }
-
+    // exactly zero -> 1
+    private static final String EXACT_ZERO = "/ak/bho/ln/mg/nso/pa/ti/wa/";
+    // zero to one -> 1
+    private static final String ZERO_TO_ONE = "/am/as/bn/gu/guw/hi/kn/pcm/fa/zu/";
+    // zero to almost two -> 1
+    private static final String BELOW_TWO = "/hy/fr/ff/kab/";
+    // between more than zero and almost two -> 1
+    private static final String POSITIVE_BELOW_TWO = "/da/lag/pt/";
+    // not supported yet
+    private static final String UNSUPPORTED = "/ar/be/bs/br/ceb/tzm/kw/hr/cs/fil/he/is/ga/lv/lt/dsb/mk/mt/gv/ars/pl/prg/ro/ru/gd/sr/si/sk/sl/shi/uk/hsb/cy/";
 
     public static PluralResolver usingCurrentLocale() {
         return usingLocale(Locale.getDefault());
@@ -44,14 +37,17 @@ public class PluralResolvers {
     }
 
     private static PluralResolver resolve(String language, String fullNameLanguage) {
-        language = "/" + language + "/";
-        for (String key : specialResolvers.keySet())
-            if (key.contains(language)) {
-                PluralResolver resolver = specialResolvers.get(key);
-                if (resolver == null)
-                    throw new LaleinException("Language " + fullNameLanguage + " not supported yet. Please provide a manual PluralResolver");
-                else return resolver;
-            }
+        String key = "/" + language + "/";
+        if (EXACT_ZERO.contains(key))
+            return n -> n.doubleValue() >= ZERO_LOWER && n.doubleValue() <= ZERO_UPPER ? ONE : null;
+        if (ZERO_TO_ONE.contains(key))
+            return n -> n.doubleValue() <= ONE_UPPER ? ONE : null;
+        if (BELOW_TWO.contains(key))
+            return n -> n.doubleValue() < TWO_LOWER ? ONE : null;
+        if (POSITIVE_BELOW_TWO.contains(key))
+            return n -> n.doubleValue() > ZERO_UPPER && n.doubleValue() < TWO_LOWER ? ONE : null;
+        if (UNSUPPORTED.contains(key))
+            throw new LaleinException("Language " + fullNameLanguage + " not supported yet. Please provide a manual PluralResolver");
         return n -> null;
     }
 }
