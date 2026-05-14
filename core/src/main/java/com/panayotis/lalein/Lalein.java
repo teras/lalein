@@ -32,18 +32,19 @@ public class Lalein {
             return null;
         Translation translation = registry.get(handler);
         String format = translation == null ? handler
-                : resolve(translation.format, translation.parameters, args);
+                : resolve(translation, args);
         if (postProcessor != null)
             format = postProcessor.apply(format);
         return format == null ? null : String.format(format, args);
     }
 
-    private String resolve(String format, Map<String, Parameter> parameters, Object... args) {
-        if (parameters == null)
+    private String resolve(Translation translation, Object... args) {
+        String format = translation.format;
+        if (translation.parameters == null)
             return format;
         Matcher matcher = tag.matcher(format);
         while (matcher.find()) {
-            Parameter parameter = parameters.get(matcher.group(1));
+            Parameter parameter = translation.parameters.get(matcher.group(1));
             if (parameter == null)
                 throw new LaleinException("Unable to locate localization parameter " + matcher.group(1));
             format = format.substring(0, matcher.start())

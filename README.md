@@ -47,7 +47,7 @@ plural.
 
 ### This solution
 
-`lalein` comes to fill the gap; a lightweight (only 17K size with Properties backend) Java library, that properly
+`lalein` comes to fill the gap; a lightweight (only 16K core plus 6K for the Properties backend) Java library, that properly
 handles all _Language Plural Rules_. When using `lalein` messages with arbitrary complexity, like
 
 * _No files to copy_
