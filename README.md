@@ -422,7 +422,7 @@ With Maven, add the backend dependency that matches your translation format. Eac
 <dependency>
     <groupId>com.panayotis.lalein</groupId>
     <artifactId>json</artifactId>
-    <version>1.1.2</version>
+    <version>1.2</version>
 </dependency>
 ```
 ```xml
@@ -430,7 +430,7 @@ With Maven, add the backend dependency that matches your translation format. Eac
 <dependency>
     <groupId>com.panayotis.lalein</groupId>
     <artifactId>yaml</artifactId>
-    <version>1.1.2</version>
+    <version>1.2</version>
 </dependency>
 ```
 ```xml
@@ -438,7 +438,7 @@ With Maven, add the backend dependency that matches your translation format. Eac
 <dependency>
     <groupId>com.panayotis.lalein</groupId>
     <artifactId>properties</artifactId>
-    <version>1.1.2</version>
+    <version>1.2</version>
 </dependency>
 ```
 ```xml
@@ -446,7 +446,7 @@ With Maven, add the backend dependency that matches your translation format. Eac
 <dependency>
     <groupId>com.panayotis.lalein</groupId>
     <artifactId>xcstrings</artifactId>
-    <version>1.1.2</version>
+    <version>1.2</version>
 </dependency>
 ```
 ```xml
@@ -454,7 +454,7 @@ With Maven, add the backend dependency that matches your translation format. Eac
 <dependency>
     <groupId>com.panayotis.lalein</groupId>
     <artifactId>fluent</artifactId>
-    <version>1.1.2</version>
+    <version>1.2</version>
 </dependency>
 ```
 ```xml
@@ -462,7 +462,7 @@ With Maven, add the backend dependency that matches your translation format. Eac
 <dependency>
     <groupId>com.panayotis.lalein</groupId>
     <artifactId>map</artifactId>
-    <version>1.1.2</version>
+    <version>1.2</version>
 </dependency>
 ```
 
