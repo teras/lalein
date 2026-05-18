@@ -31,23 +31,24 @@ public class Lalein {
             return null;
         Translation translation = registry.get(handler);
         String format = translation == null ? handler
-                : resolve(translation, args);
+                : resolve(handler, translation, args);
         if (postProcessor != null)
             format = postProcessor.apply(format);
         return format == null ? null : String.format(format, args);
     }
 
-    private String resolve(Translation translation, Object... args) {
+    private String resolve(String handler, Translation translation, Object... args) {
         String format = translation.format;
         if (translation.parameters == null)
             return format;
         Matcher matcher = tag.matcher(format);
         while (matcher.find()) {
-            Parameter parameter = translation.parameters.get(matcher.group(1));
+            String name = matcher.group(1);
+            Parameter parameter = translation.parameters.get(name);
             if (parameter == null)
-                throw new LaleinException("Unable to locate localization parameter " + matcher.group(1));
+                throw new LaleinException("Unable to locate localization parameter '" + name + "' in '" + handler + "'");
             format = format.substring(0, matcher.start())
-                    + parameter.resolve(pluralResolver, args)
+                    + parameter.resolve(pluralResolver, handler, name, args)
                     + format.substring(matcher.end());
             matcher = tag.matcher(format);
         }

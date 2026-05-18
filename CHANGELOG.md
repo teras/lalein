@@ -3,7 +3,7 @@
 All notable changes between published releases of `com.panayotis.lalein` on
 Maven Central.
 
-## [1.2] — 2026-05-14
+## [1.2] — 2026-05-16
 
 ### Added
 
@@ -26,6 +26,26 @@ Maven Central.
   position regardless of their argument index, the same parameter referenced
   multiple times, and per-locale word-order changes. When absent the first-key
   inference still applies.
+- **Auto-derive `argumentIndex` in the short form.** Lalein now infers which
+  argument drives the plural without requiring an explicit `i` key in the
+  common cases. Two-step lookup: (1) scan the plural forms for a unique
+  positional numeric ref (e.g. `%2$d`); (2) if step 1 is empty or ambiguous,
+  scan the handler for the first numeric placeholder. Fallback `1` preserves
+  the previous default for keys with no numeric placeholders (e.g. `"apples"`).
+  Explicit `i` still overrides when the data is genuinely ambiguous (handler
+  with ≥2 numeric placeholders, forms referencing more than one of them).
+- **Richer `LaleinException` messages.** Errors thrown from `Parameter.resolve`
+  now name the offending handler and parameter, e.g.
+  `A numeric argument at position #2 is required but got java.lang.String
+  (parameter 'base' of 'Cash payment of %s saved (%d allocated)')`.
+- **Select-mode parameters.** A parameter may now declare arbitrary non-CLDR
+  keys (e.g. `female`, `male`, `formal`) alongside the standard plural tags.
+  When called with a `String`/`Enum` argument the matching key is selected;
+  unknown values fall through to `r`. This brings ICU `select`-equivalent
+  expressiveness — gender, formality, term variants — without leaving the
+  positional-varargs call model. Number arguments continue to use the existing
+  CLDR plural logic unchanged. The `format` key remains reserved and is now
+  rejected with a clear message if used as a form name inside a parameter.
 
 ### Changed
 
@@ -47,6 +67,8 @@ Maven Central.
 
 - Resource loaders no longer NPE when a requested resource is missing —
   callers now receive a `LaleinException` with the offending path.
+- Grammar in the "numeric argument required" exception (`"An numeric"` →
+  `"A numeric"`).
 
 ### Internal
 

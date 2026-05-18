@@ -22,10 +22,7 @@ public enum PluralType {
         this.tag = tag;
     }
 
-    public static String findInvalidKey(Iterable<String> keysToCheck) {
-        for (String key : keysToCheck)
-            if (!ALL_TAGS.contains(key))
-                return key;
-        return null;
+    public static boolean isPluralTag(String key) {
+        return ALL_TAGS.contains(key);
     }
 }

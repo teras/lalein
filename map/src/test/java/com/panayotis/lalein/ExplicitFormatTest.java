@@ -431,10 +431,10 @@ class ExplicitFormatTest {
     // === Misuse / error paths ===
 
     @Test
-    void formatInSimpleShape_isRejectedAsInvalidPluralTag() {
-        // If someone puts "format" alongside plural tags (no sub-maps), the
-        // detection rule classifies it as the simple case, and addParam rejects
-        // "format" as an unknown plural tag. Documents the limitation.
+    void formatInSimpleShape_throws() {
+        // "format" is a reserved keyword and cannot appear inside a short-form
+        // parameter (it only makes sense at the top level of a complex translation
+        // as the master template). The loader rejects it with a clear message.
         Map<String, Object> apples = new LinkedHashMap<>();
         apples.put("format", "Hello %{base}");
         apples.put("z", "no apples");
@@ -443,7 +443,8 @@ class ExplicitFormatTest {
 
         Map<String, Object> data = new LinkedHashMap<>();
         data.put("apples", apples);
-        assertThrows(IllegalArgumentException.class, () -> MapLalein.fromMap(data));
+        LaleinException ex = assertThrows(LaleinException.class, () -> MapLalein.fromMap(data));
+        assertTrue(ex.getMessage().contains("format"));
     }
 
     @Test

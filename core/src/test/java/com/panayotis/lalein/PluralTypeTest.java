@@ -2,9 +2,6 @@ package com.panayotis.lalein;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class PluralTypeTest {
@@ -20,24 +17,16 @@ class PluralTypeTest {
     }
 
     @Test
-    void findInvalidKey_allValid_returnsNull() {
-        assertNull(PluralType.findInvalidKey(Arrays.asList("z", "o", "t", "f", "m", "r")));
-        assertNull(PluralType.findInvalidKey(Collections.emptyList()));
-        assertNull(PluralType.findInvalidKey(Collections.singletonList("o")));
+    void isPluralTag_reservedKeys() {
+        for (PluralType t : PluralType.values())
+            assertTrue(PluralType.isPluralTag(t.tag), t.tag + " should be a plural tag");
     }
 
     @Test
-    void findInvalidKey_returnsFirstInvalid() {
-        assertEquals("zoo", PluralType.findInvalidKey(Arrays.asList("o", "zoo", "r")));
-    }
-
-    @Test
-    void findInvalidKey_caseSensitive() {
-        assertEquals("Z", PluralType.findInvalidKey(Collections.singletonList("Z")));
-    }
-
-    @Test
-    void findInvalidKey_emptyStringIsInvalid() {
-        assertEquals("", PluralType.findInvalidKey(Collections.singletonList("")));
+    void isPluralTag_unknownKey() {
+        assertFalse(PluralType.isPluralTag("zoo"));
+        assertFalse(PluralType.isPluralTag("female"));
+        assertFalse(PluralType.isPluralTag(""));
+        assertFalse(PluralType.isPluralTag("Z"));   // case-sensitive
     }
 }

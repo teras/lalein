@@ -60,13 +60,21 @@ class MapEdgeCasesTest {
     }
 
     @Test
-    void unknownTagInPluralMap_throws() {
+    void nonPluralKeysAreStoredAsCustomSelectors() {
+        // Non-CLDR keys are no longer rejected — they become select-mode lookups
+        // (used for gender, formality, etc.). Plural behaviour for Number args
+        // is unchanged.
         Map<String, Object> apples = new LinkedHashMap<>();
-        apples.put("o", "one");
-        apples.put("invalid_tag", "boom");
-        apples.put("r", "many");
+        apples.put("o", "one apple");
+        apples.put("custom_key", "boom");
+        apples.put("r", "many apples");
         Map<String, Object> data = new LinkedHashMap<>();
         data.put("apples", apples);
-        assertThrows(IllegalArgumentException.class, () -> MapLalein.fromMap(data));
+        Lalein l = MapLalein.fromMap(data);
+
+        assertEquals("one apple",   l.format("apples", 1));
+        assertEquals("many apples", l.format("apples", 5));
+        assertEquals("boom",        l.format("apples", "custom_key"));
+        assertEquals("many apples", l.format("apples", "unknown")); // fallback to r
     }
 }
