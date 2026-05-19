@@ -1,15 +1,41 @@
 package com.panayotis.lalein;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Recursive-descent parser for the Fluent subset we support.
  * Builds a {@link Lalein} from the source text.
  */
 class FluentParser {
+
+    /** CLDR plural category names as they appear in Fluent variant keys. */
+    private static final Set<String> CLDR_KEYS = new HashSet<>(
+            Arrays.asList("zero", "one", "two", "few", "many", "other"));
+    /** Numeric-literal variant keys we treat as the zero/one/two CLDR slots so that
+     *  Fluent files written by {@link FluentWriter} round-trip with exact-match
+     *  semantics intact. */
+    private static final Map<String, String> NUMERIC_TO_CLDR;
+    static {
+        Map<String, String> m = new HashMap<>();
+        m.put("0", "zero");
+        m.put("1", "one");
+        m.put("2", "two");
+        NUMERIC_TO_CLDR = m;
+    }
+
+    /** Returns the canonical CLDR slot name for a variant key, or {@code null}
+     *  if the key is a custom (select-mode) identifier. */
+    private static String cldrSlotFor(String key) {
+        if (CLDR_KEYS.contains(key)) return key;
+        return NUMERIC_TO_CLDR.get(key);
+    }
 
     private final String src;
     private int pos;
@@ -18,6 +44,8 @@ class FluentParser {
     private final Map<String, Integer> varIndices = new LinkedHashMap<>();
     /** Accumulated Parameters across all nested selectors of the current entry. */
     private Map<String, Parameter> currentParams;
+    /** Selectors whose mode is select (true) or plural (false). Populated when a selector starts being built. */
+    private Map<String, Boolean> selectorModes;
 
     FluentParser(String src) {
         this.src = src;
@@ -42,6 +70,7 @@ class FluentParser {
         // Reset per-entry state — each message has its own variable scope.
         varIndices.clear();
         currentParams = new LinkedHashMap<>();
+        selectorModes = new LinkedHashMap<>();
 
         if (peekNonInlineSpace() == '{') {
             skipInlineSpace();
@@ -74,19 +103,44 @@ class FluentParser {
     }
 
     private Parameter buildParameter(SelectExpr se, int ownIdx) {
-        Map<String, String> forms = new LinkedHashMap<>();
+        // Detect select-mode upfront so self-references inside variant patterns
+        // emit %s instead of %d.
+        boolean isSelectMode = false;
         for (Variant v : se.variants)
-            forms.put(v.key, patternToText(v.pattern, se.var, ownIdx));
+            if (cldrSlotFor(v.key) == null) { isSelectMode = true; break; }
+        // Register mode before processing variant patterns so cross-references from
+        // nested selectors back to this one can pick the right printf conversion.
+        selectorModes.put(se.var, isSelectMode);
+
+        Map<String, String> cldr = new LinkedHashMap<>();
+        Map<String, String> custom = null;
+        String defaultText = null;
+        for (Variant v : se.variants) {
+            String text = patternToText(v.pattern, se.var, ownIdx, isSelectMode);
+            String slot = cldrSlotFor(v.key);
+            if (slot != null) {
+                cldr.put(slot, text);
+            } else {
+                if (custom == null) custom = new LinkedHashMap<>();
+                custom.put(v.key, text);
+            }
+            if (v.isDefault) defaultText = text;
+        }
+        // If the default key is not "other", mirror its value into the other slot so the
+        // runtime fallback (Parameter.other) still produces the right text.
+        String otherVal = cldr.get("other");
+        if (otherVal == null && defaultText != null) otherVal = defaultText;
         return new Parameter(ownIdx,
-                forms.get("zero"),
-                forms.get("one"),
-                forms.get("two"),
-                forms.get("few"),
-                forms.get("many"),
-                forms.get("other"));
+                cldr.get("zero"),
+                cldr.get("one"),
+                cldr.get("two"),
+                cldr.get("few"),
+                cldr.get("many"),
+                otherVal,
+                custom);
     }
 
-    private String patternToText(List<Object> pattern, String ownVar, int ownIdx) {
+    private String patternToText(List<Object> pattern, String ownVar, int ownIdx, boolean ownIsSelect) {
         StringBuilder out = new StringBuilder();
         for (Object el : pattern) {
             if (el instanceof String) {
@@ -94,11 +148,17 @@ class FluentParser {
             } else if (el instanceof VarRef) {
                 String var = ((VarRef) el).var;
                 if (var.equals(ownVar)) {
-                    // Referencing the selector's own value — interpolate as integer.
-                    out.append('%').append(ownIdx).append("$d");
+                    out.append('%').append(ownIdx).append(ownIsSelect ? "$s" : "$d");
                 } else {
                     int idx = getOrAssignIndex(var);
-                    out.append("%{").append(var).append("}");
+                    Boolean parentMode = selectorModes.get(var);
+                    if (parentMode != null) {
+                        // Reference to an enclosing selector — render as positional so the
+                        // resolver does not loop through the parent's Parameter.
+                        out.append('%').append(idx).append(parentMode ? "$s" : "$d");
+                    } else {
+                        out.append("%{").append(var).append("}");
+                    }
                 }
             } else if (el instanceof SelectExpr) {
                 SelectExpr nested = (SelectExpr) el;

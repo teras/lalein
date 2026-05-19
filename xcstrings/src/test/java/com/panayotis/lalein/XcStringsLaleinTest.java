@@ -8,6 +8,8 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -209,6 +211,71 @@ public class XcStringsLaleinTest {
         Lalein lalein = XcStringsLalein.fromString(json, null);
         assertEquals("1 item",  lalein.format("counter", 1));
         assertEquals("5 items", lalein.format("counter", 5));
+    }
+
+    // === Select-mode (lossy) round-trip ===
+    //
+    // The xcstrings format only supports CLDR plural categories and device variations;
+    // it has no native generic select. Per the backend's policy, custom (non-CLDR) keys
+    // are dropped silently on write, leaving only the "other" fallback so the entry
+    // still resolves at runtime.
+
+    @Test
+    void roundTrip_selectMode_dropsCustomKeysSilently() {
+        // Build a Lalein with a select-mode parameter (gender) directly so we can exercise
+        // the lossy write path without going through another backend.
+        Map<String, String> custom = new LinkedHashMap<>();
+        custom.put("female", "She liked your post");
+        custom.put("male",   "He liked your post");
+        Parameter gender = new Parameter(1, null, null, null, null, null,
+                "They liked your post", custom);
+        Map<String, Parameter> params = new LinkedHashMap<>();
+        params.put("gender", gender);
+        Map<String, Translation> translations = new LinkedHashMap<>();
+        translations.put("liked_post", new Translation("%{gender}", params));
+        Lalein original = new Lalein(translations);
+
+        // Sanity check on the original behaviour before writing.
+        assertEquals("She liked your post",   original.format("liked_post", "female"));
+        assertEquals("He liked your post",    original.format("liked_post", "male"));
+        assertEquals("They liked your post",  original.format("liked_post", "unknown"));
+
+        JsonObject json = XcStringsLalein.toJson(original, "en");
+        Lalein reread = XcStringsLalein.fromJson(json, "en");
+
+        // After the lossy round-trip, custom keys are gone — only the "other" fallback
+        // remains. The Parameter is now numeric-mode, so callers must pass a Number.
+        // (Passing a String would throw, since custom is null.)
+        assertEquals("They liked your post",  reread.format("liked_post", 0));
+        assertEquals("They liked your post",  reread.format("liked_post", 1));
+        assertEquals("They liked your post",  reread.format("liked_post", 42));
+        assertThrows(LaleinException.class, () -> reread.format("liked_post", "female"));
+    }
+
+    @Test
+    void selectMode_writtenAsPluralOtherOnly() {
+        // Verify the emitted JSON has no traces of the custom keys — only an "other" branch
+        // remains, demonstrating that the lossy conversion is silent and predictable.
+        Map<String, String> custom = new LinkedHashMap<>();
+        custom.put("formal", "Καλημέρα σας");
+        custom.put("casual", "Γεια!");
+        Parameter register = new Parameter(1, null, null, null, null, null,
+                "Γεια σας", custom);
+        Map<String, Parameter> params = new LinkedHashMap<>();
+        params.put("register", register);
+        Map<String, Translation> translations = new LinkedHashMap<>();
+        translations.put("greeting", new Translation("%{register}", params));
+        Lalein original = new Lalein(translations);
+
+        JsonObject json = XcStringsLalein.toJson(original, "el");
+        JsonObject loc = json.get("strings").asObject()
+                .get("greeting").asObject()
+                .get("localizations").asObject()
+                .get("el").asObject();
+        JsonObject plural = loc.get("variations").asObject().get("plural").asObject();
+        assertNotNull(plural.get("other"), "other branch present");
+        assertNull(plural.get("formal"),   "custom keys must not leak into output");
+        assertNull(plural.get("casual"),   "custom keys must not leak into output");
     }
 
     @Test

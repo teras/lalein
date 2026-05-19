@@ -8,7 +8,10 @@ import java.util.regex.Pattern;
 class FluentWriter {
 
     private static final Pattern LALEIN_VAR_REF = Pattern.compile("%\\{(\\w+)}");
-    private static final Pattern JAVA_INT_SPEC  = Pattern.compile("%(\\d+)\\$d|%d");
+    /** Matches both numeric and string positional specs — used to convert
+     *  references back to {@code $name} placeables when the index corresponds
+     *  to a known selector parameter. */
+    private static final Pattern JAVA_POS_SPEC  = Pattern.compile("%(\\d+)\\$[ds]|%[ds]");
 
     String write(Lalein lalein) {
         StringBuilder out = new StringBuilder();
@@ -49,13 +52,29 @@ class FluentWriter {
 
     private void writeSelect(StringBuilder out, String var, Parameter p,
                              Map<String, Parameter> allParams, int indent) {
+        boolean isSelect = p.custom != null;
         out.append("{ $").append(var).append(" ->\n");
-        writeVariantIfPresent(out, "zero",  p.zero,  var, p.argumentIndex, allParams, indent + 1, false);
-        writeVariantIfPresent(out, "one",   p.one,   var, p.argumentIndex, allParams, indent + 1, false);
-        writeVariantIfPresent(out, "two",   p.two,   var, p.argumentIndex, allParams, indent + 1, false);
-        writeVariantIfPresent(out, "few",   p.few,   var, p.argumentIndex, allParams, indent + 1, false);
-        writeVariantIfPresent(out, "many",  p.many,  var, p.argumentIndex, allParams, indent + 1, false);
-        writeVariantIfPresent(out, "other", emptyToNull(p.other), var, p.argumentIndex, allParams, indent + 1, true);
+        // Use numeric-literal selectors for the exact-match slots so that an external
+        // Fluent runtime (which treats zero/one/two as CLDR plural categories, not as
+        // exact values) reproduces Lalein's exact-match-first semantics.
+        writeVariantIfPresent(out, "0",     p.zero,  p.argumentIndex, allParams, indent + 1, false);
+        writeVariantIfPresent(out, "1",     p.one,   p.argumentIndex, allParams, indent + 1, false);
+        writeVariantIfPresent(out, "2",     p.two,   p.argumentIndex, allParams, indent + 1, false);
+        writeVariantIfPresent(out, "few",   p.few,   p.argumentIndex, allParams, indent + 1, false);
+        writeVariantIfPresent(out, "many",  p.many,  p.argumentIndex, allParams, indent + 1, false);
+        if (isSelect) {
+            for (Map.Entry<String, String> ce : p.custom.entrySet())
+                writeVariantIfPresent(out, ce.getKey(), ce.getValue(), p.argumentIndex, allParams, indent + 1, false);
+            // Convention: always emit *[other] as the default for select-mode.
+            appendIndent(out, indent + 1);
+            out.append("*[other] ");
+            String otherVal = emptyToNull(p.other);
+            if (otherVal != null)
+                appendVariantValue(out, otherVal, p.argumentIndex, allParams, indent + 1);
+            out.append('\n');
+        } else {
+            writeVariantIfPresent(out, "other", emptyToNull(p.other), p.argumentIndex, allParams, indent + 1, true);
+        }
         appendIndent(out, indent);
         out.append('}');
     }
@@ -65,37 +84,32 @@ class FluentWriter {
     }
 
     private void writeVariantIfPresent(StringBuilder out, String key, String value,
-                                       String selectorVar, int selectorIdx,
-                                       Map<String, Parameter> allParams,
+                                       int selectorIdx, Map<String, Parameter> allParams,
                                        int indent, boolean isDefault) {
         if (value == null) return;
         appendIndent(out, indent);
         if (isDefault) out.append('*');
         out.append('[').append(key).append("] ");
-        appendVariantValue(out, value, selectorVar, selectorIdx, allParams, indent);
+        appendVariantValue(out, value, selectorIdx, allParams, indent);
         out.append('\n');
     }
 
     private void appendVariantValue(StringBuilder out, String laleinText,
-                                    String selectorVar, int selectorIdx,
+                                    int selectorIdx,
                                     Map<String, Parameter> allParams, int indent) {
-        // Convert %{nested} to nested select expressions; convert %N$d / %d that
-        // matches the selector's own index to "{ $selectorVar }".
+        // Convert %{nested} to nested select expressions; convert any positional
+        // spec whose index matches an enclosing selector back to "{ $name }".
         String s = laleinText;
 
-        // Step 1: replace own positional spec (%N$d where N == selectorIdx, or bare %d if no positional) with {$selectorVar}
         StringBuilder afterSpecs = new StringBuilder();
-        Matcher m = JAVA_INT_SPEC.matcher(s);
+        Matcher m = JAVA_POS_SPEC.matcher(s);
         while (m.find()) {
             String posStr = m.group(1);
-            boolean isOwn;
-            if (posStr == null) {
-                // Bare %d — interpret as selector's own value
-                isOwn = true;
-            } else {
-                isOwn = Integer.parseInt(posStr) == selectorIdx;
-            }
-            String repl = isOwn ? "{ $" + selectorVar + " }" : m.group();
+            int idx = posStr != null ? Integer.parseInt(posStr) : selectorIdx;
+            String varName = null;
+            for (Map.Entry<String, Parameter> e : allParams.entrySet())
+                if (e.getValue().argumentIndex == idx) { varName = e.getKey(); break; }
+            String repl = varName != null ? "{ $" + varName + " }" : m.group();
             m.appendReplacement(afterSpecs, Matcher.quoteReplacement(repl));
         }
         m.appendTail(afterSpecs);
