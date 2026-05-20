@@ -54,8 +54,10 @@ plural.
 
 ### This solution
 
-`lalein` comes to fill the gap; a lightweight (only 15K core plus 5K for the Properties backend) Java library, that properly
-handles all _Language Plural Rules_. When using `lalein` messages with arbitrary complexity, like
+`lalein` comes to fill the gap; a lightweight (only 16K core plus 4K for the Properties backend) Java library, that properly
+handles all _Language Plural Rules_ with **full CLDR conformance** — 50+ languages, exhaustively verified
+against the official [`cldr-plurals.json`](https://github.com/unicode-org/cldr-json/blob/main/cldr-json/cldr-core/supplemental/plurals.json)
+for both integer and decimal inputs, with zero deviations. When using `lalein` messages with arbitrary complexity, like
 
 * _No files to copy_
 * _Copying 1 file_

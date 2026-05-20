@@ -43,12 +43,12 @@ class Parameter {
         if (argO instanceof Number) {
             Number arg = (Number) argO;
             double argDouble = arg.doubleValue();
-            if (zero != null && (argDouble >= PluralResolvers.ZERO_LOWER && argDouble <= PluralResolvers.ZERO_UPPER))
-                return zero;
-            if (one != null && (argDouble >= PluralResolvers.ONE_LOWER && argDouble <= PluralResolvers.ONE_UPPER))
-                return one;
-            if (two != null && (argDouble >= PluralResolvers.TWO_LOWER && argDouble <= PluralResolvers.TWO_UPPER))
-                return two;
+            long rounded = Math.round(argDouble);
+            if (Math.abs(argDouble - rounded) <= PluralResolvers.EPSILON) {
+                if (rounded == 0 && zero != null) return zero;
+                if (rounded == 1 && one != null) return one;
+                if (rounded == 2 && two != null) return two;
+            }
             PluralType pluralType = pluralResolver.findType(arg);
             if (pluralType == null)
                 pluralType = PluralType.OTHER;

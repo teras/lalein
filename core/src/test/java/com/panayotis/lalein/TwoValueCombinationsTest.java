@@ -215,11 +215,12 @@ class TwoValueCombinationsTest {
     }
 
     @Test
-    void portuguese_value1_999_returnsOne() {
-        // 1.999 is within 0<n<2 -> rule returns ONE
+    void langi_value1_999_returnsOne() {
+        // "lag" (Langi): 0<n<2 -> rule returns ONE. (pt formerly used this band but is now
+        // a CLDR-faithful Romance resolver where 1.999 -> other.)
         Lalein l = builder().add("n", "%{p}",
                 params("p", param(1, null, "o", "t", null, null, "r"))).build();
-        l.setPluralResolver(PluralResolvers.usingLocale(new Locale("pt")));
+        l.setPluralResolver(PluralResolvers.usingLocale(new Locale("lag")));
         assertEquals("o", l.format("n", 1.999d));
     }
 

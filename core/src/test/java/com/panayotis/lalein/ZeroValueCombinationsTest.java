@@ -166,12 +166,12 @@ class ZeroValueCombinationsTest {
     }
 
     @Test
-    void portuguese_value0_zeroNull_ruleSkipsZero_returnsOther() {
-        // pt rule: 0 < n < 2 → ONE (strict 0 < n, so 0 excluded). z null → OTHER.
+    void portuguese_value0_zeroNull_ruleReturnsOne() {
+        // pt now follows default CLDR (i = 0..1 → ONE), so n=0 → ONE.
         Lalein l = builder().add("n", "%{p}",
                 params("p", param(1, null, "o", null, null, null, "r"))).build();
         l.setPluralResolver(PluralResolvers.usingLocale(new Locale("pt")));
-        assertEquals("r", l.format("n", 0));
+        assertEquals("o", l.format("n", 0));
     }
 
     @Test
