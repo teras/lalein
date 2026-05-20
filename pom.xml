@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.panayotis.lalein</groupId>
     <artifactId>project</artifactId>
-    <version>1.2</version>
+    <version>1.2.0</version>
     <packaging>pom</packaging>
     <name>Lalein base project</name>
     <description>Translations in Java: The proper way. This is the base project</description>
@@ -13,7 +13,6 @@
     <modules>
         <module>core</module>
         <module>info</module>
-        <module>editor</module>
         <module>json</module>
         <module>yaml</module>
         <module>properties</module>
@@ -72,9 +71,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git://github.com/teras/hrgui.git</connection>
-        <developerConnection>scm:git:ssh://github.com/teras/hrgui.git</developerConnection>
-        <url>http://github.com/teras/hrgui/tree/master</url>
+        <connection>scm:git:git://github.com/teras/lalein.git</connection>
+        <developerConnection>scm:git:ssh://github.com/teras/lalein.git</developerConnection>
+        <url>https://github.com/teras/lalein/tree/main</url>
     </scm>
 
     <distributionManagement>
@@ -85,6 +84,18 @@
     </distributionManagement>
 
     <profiles>
+        <profile>
+            <!-- Active by default for local/dev builds. Automatically deactivates
+                 when any other profile is explicitly enabled (e.g. -P release),
+                 so the editor module is excluded from the Maven Central release. -->
+            <id>editor</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>editor</module>
+            </modules>
+        </profile>
         <profile>
             <id>release</id>
             <build>
@@ -97,7 +108,7 @@
                         <configuration>
                             <publishingServerId>central</publishingServerId>
                             <autoPublish>false</autoPublish>
-                            <deploymentName>${project.artifactId}-${project.version}</deploymentName>
+                            <deploymentName>lalein-${project.version}</deploymentName>
                         </configuration>
                     </plugin>
                     <plugin>

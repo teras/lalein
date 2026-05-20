@@ -6,10 +6,12 @@
     <parent>
         <artifactId>project</artifactId>
         <groupId>com.panayotis.lalein</groupId>
-        <version>1.2</version>
+        <version>1.2.0</version>
     </parent>
 
     <artifactId>editor</artifactId>
+    <name>Lalein editor (desktop)</name>
+    <description>Lalein desktop editor (Swing/Kotlin). Not published to Maven Central.</description>
     <packaging>jar</packaging>
 
 
@@ -119,12 +121,10 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>1.6.8</version>
-                <extensions>true</extensions>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
                 <configuration>
-                    <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
+                    <skipPublishing>true</skipPublishing>
                 </configuration>
             </plugin>
         </plugins>
@@ -172,27 +172,27 @@
         <dependency>
             <groupId>com.panayotis.lalein</groupId>
             <artifactId>json</artifactId>
-            <version>1.2</version>
+            <version>1.2.0</version>
         </dependency>
         <dependency>
             <groupId>com.panayotis.lalein</groupId>
             <artifactId>yaml</artifactId>
-            <version>1.2</version>
+            <version>1.2.0</version>
         </dependency>
         <dependency>
             <groupId>com.panayotis.lalein</groupId>
             <artifactId>properties</artifactId>
-            <version>1.2</version>
+            <version>1.2.0</version>
         </dependency>
         <dependency>
             <groupId>com.panayotis.lalein</groupId>
             <artifactId>map</artifactId>
-            <version>1.2</version>
+            <version>1.2.0</version>
         </dependency>
         <dependency>
             <groupId>com.panayotis.lalein</groupId>
             <artifactId>info</artifactId>
-            <version>1.2</version>
+            <version>1.2.0</version>
         </dependency>
     </dependencies>
 

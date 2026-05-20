@@ -6,17 +6,17 @@
     <parent>
         <artifactId>project</artifactId>
         <groupId>com.panayotis.lalein</groupId>
-        <version>1.2</version>
+        <version>1.2.0</version>
     </parent>
-    <description>Translations in Java: The proper way. Using Mozilla Fluent (.ftl) as backend</description>
-
     <artifactId>fluent</artifactId>
+    <name>Lalein Fluent backend</name>
+    <description>Translations in Java: The proper way. Using Mozilla Fluent (.ftl) as backend</description>
 
     <dependencies>
         <dependency>
             <groupId>com.panayotis.lalein</groupId>
             <artifactId>core</artifactId>
-            <version>1.2</version>
+            <version>1.2.0</version>
         </dependency>
     </dependencies>
 </project>

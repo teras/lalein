@@ -6,11 +6,11 @@
     <parent>
         <artifactId>project</artifactId>
         <groupId>com.panayotis.lalein</groupId>
-        <version>1.2</version>
+        <version>1.2.0</version>
     </parent>
-    <description>Translations in Java: The proper way. Using Apple's String Catalog (.xcstrings) as backend</description>
-
     <artifactId>xcstrings</artifactId>
+    <name>Lalein xcstrings backend</name>
+    <description>Translations in Java: The proper way. Using Apple's String Catalog (.xcstrings) as backend</description>
 
     <properties>
         <minimal-json.version>0.9.5</minimal-json.version>
@@ -25,7 +25,7 @@
         <dependency>
             <groupId>com.panayotis.lalein</groupId>
             <artifactId>core</artifactId>
-            <version>1.2</version>
+            <version>1.2.0</version>
         </dependency>
     </dependencies>
 </project>

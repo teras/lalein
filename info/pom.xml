@@ -6,22 +6,22 @@
     <parent>
         <artifactId>project</artifactId>
         <groupId>com.panayotis.lalein</groupId>
-        <version>1.2</version>
+        <version>1.2.0</version>
     </parent>
-    <description>Translations in Java: The proper way. Info support library</description>
-
     <artifactId>info</artifactId>
+    <name>Lalein info</name>
+    <description>Translations in Java: The proper way. Info support library</description>
 
     <dependencies>
         <dependency>
             <groupId>com.panayotis.lalein</groupId>
             <artifactId>core</artifactId>
-            <version>1.2</version>
+            <version>1.2.0</version>
         </dependency>
         <dependency>
             <groupId>com.panayotis.lalein</groupId>
             <artifactId>yaml</artifactId>
-            <version>1.2</version>
+            <version>1.2.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
