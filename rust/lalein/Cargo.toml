@@ -1,0 +1,16 @@
+[package]
+name = "lalein"
+version = "0.1.0"
+edition = "2021"
+description = "Proper i18n plurals (full CLDR) with a tiny footprint — Rust port of the lalein Java library"
+license = "MIT"
+
+# Backends are opt-in cargo features, so you only pay (in binary size) for
+# what you actually enable. The core has zero dependencies.
+[features]
+default = []
+# json = []       # planned: hand-rolled minimal-json port, no dependencies
+# yaml = []       # planned
+# properties = [] # planned
+# fluent = []     # planned
+# xcstrings = []  # planned

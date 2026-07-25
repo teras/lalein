@@ -1,0 +1,23 @@
+[package]
+name = "size-check"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+# Build twice and compare:
+#   cargo build --release -p size-check
+#   cargo build --release -p size-check --features with-lalein
+# The byte difference between the two binaries is exactly what linking
+# lalein costs — runtime, std and println machinery are identical in both.
+[features]
+with-lalein = ["dep:lalein"]
+
+[dependencies]
+lalein = { path = "../lalein", optional = true }
+
+[profile.release]
+opt-level = "z"
+lto = "fat"
+codegen-units = 1
+strip = true
+panic = "abort"
