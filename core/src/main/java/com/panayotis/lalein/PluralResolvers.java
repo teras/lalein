@@ -14,12 +14,12 @@ public class PluralResolvers {
     static final double EPSILON = 0.000001000001d;
 
     private static final String TABLE =
-            "A/ak/bho/guw/ln/mg/nso/pa/ti/wa/" +
-            "B/am/as/bn/gu/hi/kn/pcm/fa/zu/" +
+            "A/ak/bho/guw/ln/mg/nso/pa/ti/wa/csw/" +
+            "B/am/as/bn/gu/hi/kn/pcm/fa/zu/doi/kok/" +
             "C/ff/hy/kab/" +
             "D/da/" +
             "E/fr/pt/" +
-            "F/es/it/ca/" +
+            "F/es/it/ca/lld/scn/vec/" +
             "G/ru/uk/be/" +
             "[/sr/hr/bs/sh/" +
             "\\/lag/" +
@@ -43,7 +43,15 @@ public class PluralResolvers {
             "W/shi/" +
             "X/tzm/" +
             "Y/kw/" +
-            "Z/br/";
+            "Z/br/" +
+            "_/iu/naq/sat/se/sma/smi/smj/smn/sms/" +
+            "`/blo/cv/ksh/" +
+            "{/sgs/" +
+            "|/af/an/asa/ast/az/bal/bem/bez/bg/brx/ce/cgg/chr/ckb/de/dv/ee/el/en/eo" +
+            "/et/eu/fi/fo/fur/fy/gl/gsw/ha/haw/hu/ia/ie/io/jgo/jmc/ka/kaj/kcg/kk/kkj" +
+            "/kl/ks/ksb/ku/ky/lb/lg/lij/mas/mgo/ml/mn/mr/nah/nb/nd/ne/nl/nn/nnh/no/nr" +
+            "/ny/nyn/om/or/os/pap/ps/rm/rof/rwk/saq/sc/sd/sdh/seh/sn/so/sq/ss/ssy/st" +
+            "/sv/sw/syr/ta/te/teo/tig/tk/tn/tr/ts/ug/ur/uz/ve/vo/vun/wae/xh/xog/yi/";
 
     private static final PluralResolver NONE = n -> null;
 
@@ -52,16 +60,21 @@ public class PluralResolvers {
     }
 
     public static PluralResolver usingLocale(Locale locale) {
+        // CLDR gives European Portuguese its own rule — identical to the
+        // es/it/ca family (rule 5): one = 1, many at exact millions.
+        if ("pt".equals(locale.getLanguage()) && "PT".equals(locale.getCountry()))
+            return n -> resolve(5, n);
         return usingLanguage(locale.getLanguage());
     }
 
     public static PluralResolver usingLanguage(String language) {
         int idx = TABLE.indexOf("/" + language + "/");
         if (idx < 0) return NONE;
-        // Rule codes are 'A'..'^' (one char per rule). Language codes are
-        // lowercase letters separated by '/'.
-        while (TABLE.charAt(idx) < 'A' || TABLE.charAt(idx) > '^') idx--;
-        int rule = TABLE.charAt(idx) - 'A';
+        // Rule codes are single chars, anything but '/' or a-z. Language codes
+        // are lowercase letters separated by '/'.
+        char c = TABLE.charAt(idx);
+        while (c == '/' || (c >= 'a' && c <= 'z')) c = TABLE.charAt(--idx);
+        int rule = c - 'A';
         return n -> resolve(rule, n);
     }
 
@@ -73,6 +86,7 @@ public class PluralResolvers {
 
     private static PluralType resolve(int rule, Number num) {
         double d = num.doubleValue();
+        if (d != d || d == Double.POSITIVE_INFINITY || d == Double.NEGATIVE_INFINITY) return null;
         double absD = d < 0 ? -d : d;
         long rounded = Math.round(d);
         boolean isInt = Math.abs(d - rounded) <= EPSILON;
@@ -212,6 +226,19 @@ public class PluralResolvers {
                 if (umod100 == 1) return ONE;
                 if (umod100 == 2) return TWO;
                 return (umod100 == 3 || umod100 == 4) ? FEW : null;
+            case 30: // inuktitut, nama, santali, sami family: one = 1, two = 2
+                if (isInt && n == 1) return ONE;
+                return isInt && n == 2 ? TWO : null;
+            case 31: // anii, chuvash, colognian: zero = 0, one = 1
+                if (isInt && n == 0) return ZERO;
+                return isInt && n == 1 ? ONE : null;
+            case 58: // samogitian (rule code '{'): decimals → many; two = 2
+                if (f != 0) return MANY;
+                if (m10 == 1 && m100 != 11) return ONE;
+                if (n == 2) return TWO;
+                return m10 >= 2 && m10 <= 9 && (m100 < 11 || m100 > 19) ? FEW : null;
+            case 59: // english-like family (rule code '|'): one = 1, everything else → other
+                return isInt && n == 1 ? ONE : null;
         }
         return null;
     }

@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,11 +23,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * Exhaustive matrix test: every language registered in Lalein's PluralResolvers
- * is exercised against the official CLDR cardinal rules (loaded from
- * {@code cldr-plurals.json} in test resources) over a wide range of values.
- * Each mismatch is reported with language, input, expected category, and
- * actual category. Zero deviations are currently allowed.
+ * Exhaustive matrix test: every language in the official CLDR cardinal rules
+ * (loaded from {@code cldr-plurals.json} in test resources) is exercised
+ * against Lalein's PluralResolvers over a wide range of values. Languages
+ * without an explicit TABLE entry resolve through the default rule, which
+ * must match their CLDR definition (one/other or other-only). Each mismatch
+ * is reported with language, input, expected category, and actual category.
+ * Zero deviations are currently allowed.
  */
 class CldrPluralComplianceTest {
 
@@ -36,15 +39,14 @@ class CldrPluralComplianceTest {
     static void loadCldr() { cldr = loadPlurals(); }
 
     @Test
-    void allRegisteredLanguagesMatchCldr() {
+    void allCldrLanguagesMatchCldr() {
         List<String> mismatches = new ArrayList<>();
-        for (String lang : LANGUAGES) {
-            LinkedHashMap<String, String> rules = cldr.get(lang);
-            if (rules == null) {
-                mismatches.add(lang + ": not present in cldr-plurals.json");
-                continue;
-            }
-            PluralResolver lalein = PluralResolvers.usingLanguage(lang);
+        for (Map.Entry<String, LinkedHashMap<String, String>> entry : cldr.entrySet()) {
+            String lang = entry.getKey();
+            LinkedHashMap<String, String> rules = entry.getValue();
+            PluralResolver lalein = "pt-PT".equals(lang)
+                    ? PluralResolvers.usingLocale(new Locale("pt", "PT"))
+                    : PluralResolvers.usingLanguage(lang);
             for (double v : TEST_VALUES) {
                 PluralType expected = cldrCategoryFor(rules, v);
                 PluralType actual = normalize(lalein.findType(v));
@@ -120,11 +122,12 @@ class CldrPluralComplianceTest {
     private static Map<String, LinkedHashMap<String, String>> loadPlurals() {
         Map<String, LinkedHashMap<String, String>> out = new LinkedHashMap<>();
         // Match every "name": { line, then accept the block only if name is a
-        // base language code (2-3 lowercase letters). Region variants like
-        // "pt-PT" must reset currentLang to null so their rules don't bleed
-        // into the base language's entry.
+        // base language code (2-3 lowercase letters). Region variants other
+        // than pt-PT must reset currentLang to null so their rules don't bleed
+        // into the base language's entry. pt-PT is kept because CLDR assigns
+        // it its own rule, which Lalein resolves via usingLocale().
         Pattern blockStart = Pattern.compile("^\\s+\"([^\"]+)\":\\s*\\{\\s*$");
-        Pattern baseLang = Pattern.compile("[a-z]{2,3}");
+        Pattern baseLang = Pattern.compile("[a-z]{2,3}|pt-PT");
         Pattern ruleLine = Pattern.compile("^\\s+\"(pluralRule-count-[a-z]+)\":\\s*\"([^\"]*)\".*$");
         try (InputStream in = CldrPluralComplianceTest.class.getResourceAsStream("/cldr-plurals.json")) {
             assertNotNull(in, "cldr-plurals.json not found on classpath");
@@ -151,23 +154,6 @@ class CldrPluralComplianceTest {
         } catch (IOException e) { throw new UncheckedIOException(e); }
         return out;
     }
-
-    /** Every language code currently registered in PluralResolvers' TABLE. */
-    private static final List<String> LANGUAGES = Arrays.asList(
-            "ak", "bho", "guw", "ln", "mg", "nso", "pa", "ti", "wa",
-            "am", "as", "bn", "gu", "hi", "kn", "pcm", "fa", "zu",
-            "ff", "hy", "kab",
-            "da", "fr", "es", "it", "ca", "pt",
-            "ru", "uk", "be",
-            "sr", "hr", "bs", "sh",
-            "lag", "si",
-            "pl", "cs", "sk", "lt", "lv", "prg",
-            "sl", "dsb", "hsb",
-            "ar", "ars", "he", "cy", "ga", "gd", "gv",
-            "ro", "mo", "mt", "is", "mk",
-            "fil", "ceb", "tl",
-            "shi", "tzm", "kw", "br"
-    );
 
     /** Inputs probed for every language. Covers small integers (densely),
      *  large round numbers, and a few canonical fractional values. */
