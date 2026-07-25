@@ -3,6 +3,33 @@
 All notable changes between published releases of `com.panayotis.lalein` on
 Maven Central.
 
+## [Unreleased]
+
+### Added
+
+- **Full CLDR language coverage** in `PluralResolvers`: every CLDR language
+  with a non-trivial cardinal rule now has an explicit table entry — 124
+  additional languages, reusing existing rule families where the rules
+  coincide and adding four new ones: a one/two family (`iu`, `naq`, `sat`,
+  `se`, `sma`, `smi`, `smj`, `smn`, `sms`), a zero/one family (`blo`, `cv`,
+  `ksh`), Samogitian (`sgs`), and the English-like one/other family that
+  covers the bulk of the remaining languages (`en`, `de`, `el`, `tr`, …).
+  The compliance test now walks the entire official `cldr-plurals.json` —
+  all 222 languages, verified for integer and decimal inputs with zero
+  deviations — so a future CLDR addition the table doesn't know about fails
+  the build. Cost: ~1.5 KB in the core jar.
+- **Regional variant support** in `PluralResolvers.usingLocale` — European
+  Portuguese (`pt-PT`) now resolves to its own CLDR rule instead of the
+  Brazilian `pt` one.
+
+### Changed
+
+- **Negative numbers now follow CLDR's `n = abs(source)`** also on the
+  zero/one/two shortcut in `Parameter` — `-1` takes the `one` form for every
+  language, registered or not.
+- **NaN and Infinity inputs no longer crash** `PluralResolvers.resolve` —
+  they resolve to `other`, matching the previous fallback behaviour.
+
 ## [1.2] — 2026-05-16
 
 ### Added
