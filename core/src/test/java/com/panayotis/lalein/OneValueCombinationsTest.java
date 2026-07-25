@@ -65,11 +65,12 @@ class OneValueCombinationsTest {
     }
 
     @Test
-    void negativeOne_notInOneBand() {
+    void negativeOne_usesOneBand() {
         Lalein l = build_zotr();
-        assertEquals("other", l.format("n", -1));
-        assertEquals("other", l.format("n", -1.0d));
-        assertEquals("other", l.format("n", new BigDecimal("-1")));
+        // CLDR defines n = abs(source): -1 falls into the natural ONE band
+        assertEquals("one", l.format("n", -1));
+        assertEquals("one", l.format("n", -1.0d));
+        assertEquals("one", l.format("n", new BigDecimal("-1")));
     }
 
     // === Combinations of which plural forms are present ===

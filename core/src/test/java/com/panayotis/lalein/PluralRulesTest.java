@@ -43,6 +43,19 @@ class PluralRulesTest {
     }
 
     @Test
+    void negativeValues_useAbsoluteValueCategory() {
+        // CLDR defines n = abs(source): -1 -> ONE, -2 -> TWO, even on the
+        // fallback path of unregistered languages like "en".
+        Lalein l = l("n", param(1, "ZERO", "ONE", "TWO", null, null, "OTHER"));
+        l.setPluralResolver(PluralResolvers.usingLanguage("en"));
+        assertEquals("ZERO", l.format("n", -0.0));
+        assertEquals("ONE", l.format("n", -1));
+        assertEquals("TWO", l.format("n", -2));
+        assertEquals("OTHER", l.format("n", -5));
+        assertEquals("OTHER", l.format("n", -1.5));
+    }
+
+    @Test
     void zeroMapsToOne_group() {
         // "pa" (Punjabi) — n == 0 -> ONE
         // With both z and o defined: natural ZERO takes priority for 0.

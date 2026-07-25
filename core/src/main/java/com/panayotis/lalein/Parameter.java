@@ -45,9 +45,11 @@ class Parameter {
             double argDouble = arg.doubleValue();
             long rounded = Math.round(argDouble);
             if (Math.abs(argDouble - rounded) <= PluralResolvers.EPSILON) {
-                if (rounded == 0 && zero != null) return zero;
-                if (rounded == 1 && one != null) return one;
-                if (rounded == 2 && two != null) return two;
+                // CLDR defines n = abs(source): -1 takes the "one" form, etc.
+                long abs = rounded < 0 ? -rounded : rounded;
+                if (abs == 0 && zero != null) return zero;
+                if (abs == 1 && one != null) return one;
+                if (abs == 2 && two != null) return two;
             }
             PluralType pluralType = pluralResolver.findType(arg);
             if (pluralType == null)

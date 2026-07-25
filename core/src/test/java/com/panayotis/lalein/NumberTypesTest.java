@@ -87,8 +87,8 @@ class NumberTypesTest {
     @Test
     void negativeNumbers() {
         Lalein l = basic();
-        // -1 is outside the natural ONE band (which is symmetric only around exactly 1)
-        assertEquals("many", l.format("n", -1));
+        // CLDR defines n = abs(source): -1 falls into the natural ONE band
+        assertEquals("one", l.format("n", -1));
         assertEquals("many", l.format("n", -100));
         assertEquals("many", l.format("n", -1.5));
     }

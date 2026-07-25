@@ -160,7 +160,14 @@ class ParameterTest {
         Parameter p = param(1, "z", "o", "t", null, null, "OTHER");
         assertEquals("OTHER", p.resolve(NEVER, null, null, new Object[]{1.5d}));
         assertEquals("OTHER", p.resolve(NEVER, null, null, new Object[]{2.5d}));
-        assertEquals("OTHER", p.resolve(NEVER, null, null, new Object[]{-1d}));
         assertEquals("OTHER", p.resolve(NEVER, null, null, new Object[]{100}));
+    }
+
+    @Test
+    void resolve_negativeInteger_usesAbsoluteValueBand() {
+        // CLDR defines n = abs(source): -1 falls into the natural ONE band
+        Parameter p = param(1, "z", "o", "t", null, null, "OTHER");
+        assertEquals("o", p.resolve(NEVER, null, null, new Object[]{-1d}));
+        assertEquals("t", p.resolve(NEVER, null, null, new Object[]{-2d}));
     }
 }

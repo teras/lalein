@@ -66,12 +66,12 @@ class TwoValueCombinationsTest {
     }
 
     @Test
-    void negativeTwo_notInTwoBand() {
+    void negativeTwo_usesTwoBand() {
         Lalein l = build_zotr();
-        // -2 has no natural detection and no rule -> OTHER
-        assertEquals("other", l.format("n", -2));
-        assertEquals("other", l.format("n", -2.0d));
-        assertEquals("other", l.format("n", new BigDecimal("-2")));
+        // CLDR defines n = abs(source): -2 falls into the natural TWO band
+        assertEquals("two", l.format("n", -2));
+        assertEquals("two", l.format("n", -2.0d));
+        assertEquals("two", l.format("n", new BigDecimal("-2")));
     }
 
     // === Combinations of which plural forms are present ===
